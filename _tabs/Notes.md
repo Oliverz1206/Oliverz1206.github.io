@@ -1,5 +1,5 @@
 ---
-layout: Notes
+layout: page
 icon: fas fa-note-sticky
 order: 3
 ---
