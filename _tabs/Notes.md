@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: Posts
 icon: fas fa-note-sticky
 order: 3
 ---

@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: Posts
 icon: fas fa-bars-progress
 order: 2
 ---
