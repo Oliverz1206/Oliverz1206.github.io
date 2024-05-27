@@ -9,8 +9,12 @@
   noblank: true # open link in current tab
 
 - type: linkedin
-  icon: 'fab fa-linkedin'   # icons powered by <https://fontawesome.com/>
+  icon: "fab fa-linkedin"   # icons powered by <https://fontawesome.com/>
   url:  'https://www.linkedin.com/in/yunfan-oliver-zhang'                  # Fill with your Linkedin homepage
+
+- type: Instagram
+  icon: "fab fa-instagram"
+  url:  'https://www.instagram.com/oliver_zhang1206'
 
 # Uncomment and complete the url below to enable more contact options
 #
