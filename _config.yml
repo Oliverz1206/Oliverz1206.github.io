@@ -16,7 +16,7 @@ timezone: America/New_York
 
 title: Yunfan Zhang # the main title
 
-tagline: Oliver # it will display as the sub-title
+tagline: Master of Science in Electrical and Computer Engineering at Duke University # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
   A minimal, responsive and feature-rich Jekyll theme for technical writing.
