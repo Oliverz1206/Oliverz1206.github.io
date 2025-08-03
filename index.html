@@ -1,4 +1,18 @@
 ---
-layout: home
-# Index page
+layout: page
+title:  Welcome to my site!
+permalink: /
 ---
+
+{% capture content %}
+
+👋 你好！
+
+我是张云帆，目前是 Duke ECE 的硕士研究生，研究方向为信号与系统、机器学习以及电路设计。
+
+- 📧 邮箱：xxx@example.com
+- 🧠 研究兴趣：IC 设计、AI 安全、多模态学习
+- 🔗 [GitHub](https://github.com/你的用户名)
+
+{% endcapture %}
+{{ content | markdownify }}
