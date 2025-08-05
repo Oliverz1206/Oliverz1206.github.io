@@ -2,8 +2,8 @@
 title: Project 1
 date: 2025-06-18 10:00:00 +0800
 categories: [Projects]
-tags: [someTag]
-description: 简短描述文字
+tags: [test]
+description: Discription
 ---
 
 Test 1
