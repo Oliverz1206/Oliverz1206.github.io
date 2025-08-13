@@ -1,13 +1,10 @@
 ---
-layout: default
+layout: page
 title: Publications
 icon: fas fa-file-signature
-permalink: /publications/
 order: 3
 refactor: true
 ---
-
-# Publications
 
 {% include lang.html %}
 

@@ -1,8 +1,7 @@
 ---
 layout: page
-title: Blog
+title: Blogs
 icon: fas fa-clipboard
-permalink: /blog/
 order: 5
 ---
 
@@ -12,7 +11,7 @@ order: 5
 {% assign df_dayjs_m = site.data.locales[lang].df.archives.dayjs | default: '/ MM' %}
 
 <div id="archives" class="pl-xl-3">
-  {% assign blog_posts = site.posts | where_exp: "p", "p.categories[0] == 'Blog'" %}
+  {% assign blog_posts = site.posts | where_exp: "p", "p.categories[0] == 'Blogs'" %}
 
   {% for post in blog_posts %}
     {% assign cur_year = post.date | date: '%Y' %}

@@ -1,0 +1,121 @@
+<!-- The Top Bar -->
+
+<header id="topbar-wrapper" class="flex-shrink-0" aria-label="Top Bar">
+  <div
+    id="topbar"
+    class="d-flex align-items-center justify-content-between px-lg-3 h-100">
+    <nav id="breadcrumb" aria-label="Breadcrumb">
+      {% assign lang = include.lang %}
+      {% assign home_label = site.data.locales[lang].tabs.home | default: 'Home' %}
+
+      {% if page.layout == 'home' %}
+        <span>{{ home_label | capitalize }}</span>
+
+      {% elsif page.top %}
+        {%- assign top_slug = page.top    | slugify -%}
+        {%- assign l1_slug  = page.level1 | slugify -%}
+        {%- assign l2_slug  = page.level2 | slugify -%}
+
+        <span><a href="{{ '/' | relative_url }}">{{ home_label | capitalize }}</a></span>
+        <span><a href="{{ '/' | append: top_slug | append: '/' | relative_url }}">{{ page.top }}</a></span>
+
+        {% if page.level1 %}
+          <span>
+            <a href="{{ '/' | append: top_slug | append: '/' | append: l1_slug | append: '/' | relative_url }}">
+              {{ page.level1 }}
+            </a>
+          </span>
+        {% endif %}
+
+        {% if page.level2 %}
+          <span>
+            <a href="{{ '/' | append: top_slug | append: '/' | append: l1_slug | append: '/' | append: l2_slug | append: '/' | relative_url }}">
+              {{ page.level2 }}
+            </a>
+          </span>
+        {% endif %}
+
+    {% if page.layout == 'post' and page.title %}
+      <span>{{ page.title }}</span>
+    {% endif %}
+
+      {% elsif page.categories %}
+        {%- assign top      = page.categories[0] -%}
+        {%- assign level1   = page.categories[1] -%}
+        {%- assign level2   = page.categories[2] -%}
+        {%- assign top_slug = top    | slugify -%}
+        {%- assign l1_slug  = level1 | slugify -%}
+        {%- assign l2_slug  = level2 | slugify -%}
+
+        <span><a href="{{ '/' | relative_url }}">{{ home_label | capitalize }}</a></span>
+        {% if top %}
+          <span><a href="{{ '/' | append: top_slug | append: '/' | relative_url }}">{{ top }}</a></span>
+        {% endif %}
+        {% if level1 %}
+          <span><a href="{{ '/' | append: top_slug | append: '/' | append: l1_slug | append: '/' | relative_url }}">{{ level1 }}</a></span>
+        {% endif %}
+        {% if level2 %}
+          <span><a href="{{ '/' | append: top_slug | append: '/' | append: l1_slug | append: '/' | append: l2_slug | append: '/' | relative_url }}">{{ level2 }}</a></span>
+        {% endif %}
+
+        {% if page.layout == 'post' and page.title %}
+          <span>{{ page.title }}</span>
+        {% endif %}
+
+      {% else %}
+        {% comment %} 保留 Chirpy 原逻辑 {% endcomment %}
+        {% assign paths = page.url | split: '/' %}
+        {% if paths.size == 0 %}
+      <span>{{ home_label | capitalize }}</span>
+        {% else %}
+          {% for item in paths %}
+            {% if forloop.first %}
+              <span><a href="{{ '/' | relative_url }}">{{ home_label | capitalize }}</a></span>
+            {% elsif forloop.last %}
+              {% if page.collection == 'tabs' %}
+                <span>{{ site.data.locales[lang].tabs[item] | default: page.title }}</span>
+              {% else %}
+                <span>{{ page.title }}</span>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endif %}
+    </nav>
+    <!-- endof #breadcrumb -->
+
+    <button type="button" id="sidebar-trigger" class="btn btn-link" aria-label="Sidebar">
+      <i class="fas fa-bars fa-fw"></i>
+    </button>
+
+    <div id="topbar-title">
+      {% if page.layout == 'home' %}
+        {{- site.data.locales[include.lang].title | default: site.title -}}
+      {% elsif page.collection == 'tabs' or page.layout == 'page' %}
+        {%- capture tab_key -%}{{ page.url | split: '/' }}{%- endcapture -%}
+        {{- site.data.locales[include.lang].tabs[tab_key] | default: page.title -}}
+      {% else %}
+        {{- site.data.locales[include.lang].layout[page.layout] | default: page.layout | capitalize -}}
+      {% endif %}
+    </div>
+
+    <button type="button" id="search-trigger" class="btn btn-link" aria-label="Search">
+      <i class="fas fa-search fa-fw"></i>
+    </button>
+
+    <search id="search" class="align-items-center ms-3 ms-lg-0">
+      <i class="fas fa-search fa-fw"></i>
+      <input
+        class="form-control"
+        id="search-input"
+        type="search"
+        aria-label="search"
+        autocomplete="off"
+        placeholder="{{ site.data.locales[include.lang].search.hint | capitalize }}..."
+      >
+    </search>
+    <button type="button" class="btn btn-link text-decoration-none" id="search-cancel">
+      {{- site.data.locales[include.lang].search.cancel -}}
+    </button>
+  </div>
+</header>

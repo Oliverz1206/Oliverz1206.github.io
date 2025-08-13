@@ -1,0 +1,146 @@
+---
+layout: page
+# The list [ROOT] layout
+---
+
+{% include lang.html %}
+{% assign top = page.top | default: page.title %}
+
+<article class="mb-4">
+  {{ content }}
+</article>
+
+{% assign HEAD_PREFIX = 'h_' %}
+{% assign LIST_PREFIX = 'l_' %}
+{% assign group_index = 0 %}
+{% assign posts_all = site.posts | where_exp: "post", "post.categories and post.categories[0] == top" %}
+
+{% assign l1_all = "" | split: "" %}
+{% for post in posts_all %}
+  {% assign l1 = post.categories[1] %}
+  {% if l1 and l1 != '' %}
+    {% unless l1_all contains l1 %}
+      {% assign l1_all = l1_all | push: l1 %}
+    {% endunless %}
+  {% endif %}
+{% endfor %}
+{% assign l1_all = l1_all | sort %}
+
+{% for l1 in l1_all %}
+  {% assign sub_posts = posts_all | where_exp: "p", "p.categories[1] == l1" %}
+  {% assign l2_all = "" | split: "" %}
+
+  {% for p in sub_posts %}
+    {% assign l2 = p.categories[2] %}
+    {% if l2 and l2 != '' %}
+      {% unless l2_all contains l2 %}
+        {% assign l2_all = l2_all | push: l2 %}
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+  {% assign l2_all = l2_all | sort %}
+
+  <div class="card categories">
+    <div
+      id="{{ HEAD_PREFIX }}{{ group_index }}"
+      class="card-header d-flex justify-content-between align-items-center hide-border-bottom"
+    >
+      <span class="ms-2 d-flex align-items-center">
+        <i class="far fa-folder{% if l2_all.size > 0 %}-open{% endif %} fa-fw"></i>
+        {% capture _notes_url %}/{{ top | slugify | url_encode }}/{{ l1 | slugify | url_encode }}/{% endcapture %}
+        <a href="{{ _notes_url | relative_url }}" class="ms-2 text-decoration-none">{{ l1 }}</a>
+        <span class="text-muted small font-weight-light ms-2">
+          {% if l2_all.size > 0 %}
+            {{ l2_all.size }} categories,
+          {% endif %}
+          {{ sub_posts.size }} posts
+        </span>
+      </span>
+
+      <span
+        class="clickable-header"
+        role="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#{{ LIST_PREFIX }}{{ group_index }}"
+        aria-expanded="true"
+        aria-controls="{{ LIST_PREFIX }}{{ group_index }}"
+      >
+        <i class="fas fa-angle-down fa-fw rotate-icon"></i>
+      </span>
+    </div>
+
+    <div id="{{ LIST_PREFIX }}{{ group_index }}" class="collapse show" aria-labelledby="{{ HEAD_PREFIX }}{{ group_index }}">
+      <ul class="list-group">
+        {%- comment -%} L1 下直接挂的文章（没有 L2） {%- endcomment -%}
+        {% assign direct_posts = sub_posts | where_exp: "p", "p.categories.size < 3 or p.categories[2] == nil" %}
+        {% for post in direct_posts %}
+          <li class="list-group-item">
+            <i class="far fa-file fa-fw"></i>
+            <a href="{{ post.url | relative_url }}" class="mx-2">{{ post.title }}</a>
+          </li>
+        {% endfor %}
+
+        {% for l2 in l2_all %}
+          {% assign posts_l2 = sub_posts | where_exp: "p", "p.categories[2] == l2" %}
+          <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center toggle-subfolder"
+                 data-bs-toggle="collapse"
+                 data-bs-target="#subcat-{{ group_index }}-{{ forloop.index }}"
+                 aria-expanded="false">
+              <span>
+                <i class="fas fa-chevron-right fa-fw me-2 toggle-icon"></i>
+                <i class="far fa-folder fa-fw"></i>
+                <span class="mx-2">{{ l2 }}</span>
+                <span class="text-muted small font-weight-light">
+                  {{ posts_l2.size }} post{% if posts_l2.size > 1 %}s{% endif %}
+                </span>
+              </span>
+            </div>
+
+            <ul class="list-group ms-4 mt-2 collapse" id="subcat-{{ group_index }}-{{ forloop.index }}">
+              {% for post in posts_l2 %}
+                <li class="list-group-item">
+                  <i class="far fa-file fa-fw"></i>
+                  <a href="{{ post.url | relative_url }}" class="mx-2">{{ post.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  {% assign group_index = group_index | plus: 1 %}
+{% endfor %}
+
+<style>
+.rotate-icon { transition: transform 0.3s ease; transform: rotate(0deg); }
+.toggle-icon { transition: transform 0.3s ease; transform: rotate(0deg); font-size: 0.65rem !important; }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('.clickable-header').forEach(function(header) {
+    header.addEventListener('click', function () {
+      const icon = header.querySelector('.rotate-icon');
+      const isCollapsed = header.getAttribute('aria-expanded') === 'true';
+      if (icon) {
+        icon.style.transition = 'transform 0.3s ease';
+        icon.style.transform = isCollapsed ? 'rotate(0deg)' : 'rotate(90deg)';
+      }
+    });
+  });
+
+  document.querySelectorAll('.toggle-subfolder').forEach(function(toggle) {
+    toggle.addEventListener('click', function () {
+      const icon = toggle.querySelector('.toggle-icon');
+      if (icon) {
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        icon.style.transition = 'transform 0.3s ease';
+        icon.style.transform = isExpanded ? 'rotate(90deg)' : 'rotate(0deg)';
+      }
+    });
+  });
+});
+</script>
