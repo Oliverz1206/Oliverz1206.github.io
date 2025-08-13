@@ -252,7 +252,7 @@ hierarchical_topics:
 # slugify modification for link generation
 slugify_mode: default
 slug_from_title: true
-slug_rules_debug: false
+slug_rules_debug: true
 
 # showcase rank for postcards format (projects etc..)
 showcase_rank:
