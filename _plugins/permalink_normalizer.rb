@@ -1,72 +1,59 @@
+# _plugins/permalink_normalizer.rb
 # frozen_string_literal: true
-#
-# 在渲染前(:pre_render)强制规范 URL（仅影响 URL，不改动原有 categories 值）：
-#   A) categories 用于生成 URL 段：逐段 slugify（空格→-，折叠多余的 -）
-#   B) 末段：若现有 slug 与“默认文件名 slug”一致，则用 title 的 slug 覆盖；
-#            若不同（确为用户手写），则尊重用户。
-#   C) 回写 doc.data['slug'] 与 doc.data['permalink']；不写 doc.data['categories']！
-#
+
 module Jekyll
   module PermalinkNormalizer
-    def self.slugify_segment(str, mode)
-      s = Jekyll::Utils.slugify(str.to_s, mode: mode)
-      s = s.downcase.strip.tr(" ", "-")
-      s = s.gsub(/-+/, "-").gsub(/\A-+|-+\z/, "")
-      s
+    module_function
+
+    def slugify(str)
+      Jekyll::Utils.slugify(str.to_s, mode: "default")
     end
 
-    def self.default_slug_from_basename(doc, mode)
-      base = doc.basename_without_ext.to_s
-      base = base.sub(/^\d{4}-\d{2}-\d{2}-/, "")  # 移除 YYYY-MM-DD-
-      slugify_segment(base, mode)
+    # 去掉日期前缀后的文件名尾巴，例如 "2025-06-29-ProjectTest2" -> "ProjectTest2"
+    def filename_tail(doc)
+      doc.basename_without_ext.to_s.sub(/^\d{4}-\d{2}-\d{2}-/, "")
     end
 
-    Jekyll::Hooks.register :documents, :pre_render do |doc|
-      site = doc.site
-      cfg  = site.config
+    def normalize!(doc)
+      # 只处理 posts
+      return unless doc.respond_to?(:collection) && doc.collection&.label == "posts"
 
-      # 仅处理 posts（或 _config.yml 指定的集合）
-      allowed = cfg["slug_from_title_collections"]
-      allowed = ["posts"] unless allowed.is_a?(Array) && !allowed.empty?
-      coll = doc.respond_to?(:collection) ? doc.collection&.label : nil
-      next unless allowed.include?(coll)
+      # A) categories 各段转 slug（只用于 URL，不回写 categories）
+      cats_raw  = Array(doc.data["categories"]).map(&:to_s)
+      cats_slug = cats_raw.map { |c| slugify(c) }.reject(&:empty?)
 
-      mode  = (cfg["slugify_mode"] || "default").to_sym
-      debug = cfg["slug_rules_debug"]
+      # B) 末段 slug：若现有等于“文件名派生”，用 title 的 slug；否则尊重显式 slug
+      fname_tail         = filename_tail(doc)          # 如 "NotesTest1"
+      default_slug       = slugify(fname_tail)         # 如 "notestest1"
+      existing_slug      = (doc.data["slug"] || fname_tail).to_s
+      existing_slug_norm = slugify(existing_slug)
+      title_slug         = doc.data["title"] ? slugify(doc.data["title"]) : existing_slug_norm
+      final_slug         = (existing_slug_norm == default_slug) ? title_slug : existing_slug_norm
 
-      # A) 从“原始 categories”（不要修改它）生成 URL 用的 slug 段
-      cats_raw = doc.data["categories"]
-      cats_raw = [cats_raw] unless cats_raw.nil? || cats_raw.is_a?(Array)
-      cats_raw = (cats_raw || []).flatten.compact.map(&:to_s).reject(&:empty?)
-      cats_slug_arr = cats_raw.map { |c| PermalinkNormalizer.slugify_segment(c, mode) }
-      cats_slug     = cats_slug_arr.join("/")
+      # C) 回写 slug & permalink（不改 categories）
+      doc.data["slug"] = final_slug
+      doc.data["permalink"] =
+        cats_slug.empty? ? "/#{final_slug}/" : "/#{cats_slug.join('/')}/#{final_slug}/"
 
-      # B) 末段 slug 计算：默认 vs 现有 vs title
-      default_slug  = PermalinkNormalizer.default_slug_from_basename(doc, mode)
-      existing_slug = doc.data["slug"].to_s.strip
-      use_title     = cfg["slug_from_title"] && !doc.data["title"].to_s.strip.empty?
-
-      final_slug =
-        if use_title
-          if existing_slug.empty? || existing_slug.casecmp(default_slug).zero?
-            PermalinkNormalizer.slugify_segment(doc.data["title"].to_s, mode)
-          else
-            PermalinkNormalizer.slugify_segment(existing_slug, mode)
-          end
-        else
-          PermalinkNormalizer.slugify_segment(existing_slug.empty? ? default_slug : existing_slug, mode)
-        end
-
-      # C) 仅写回 slug & permalink（不动 categories）
-      doc.data["slug"]       = final_slug
-      doc.data["permalink"]  = cats_slug.empty? ? "/#{final_slug}/" : "/#{cats_slug}/#{final_slug}/"
-
-      if debug
+      if doc.site.config["slug_rules_debug"]
         Jekyll.logger.info "SLUGRULES",
-          "doc=#{doc.path} cats_raw=#{cats_raw.inspect} -> #{cats_slug_arr.inspect}; "\
-          "default_slug=#{default_slug.inspect} existing_slug=#{existing_slug.inspect} "\
+          "doc=#{doc.path} cats_raw=#{cats_raw.inspect} -> #{cats_slug.inspect}; " \
+          "default_slug=#{default_slug.inspect} existing_slug=#{existing_slug.inspect} " \
           "=> final_slug=#{final_slug.inspect}; permalink=#{doc.data['permalink']}"
       end
     end
+  end
+end
+
+# 1) 文档初始化完成后立即规范化（任何页面开始渲染前）
+Jekyll::Hooks.register :documents, :post_init do |doc|
+  Jekyll::PermalinkNormalizer.normalize!(doc)
+end
+
+# 2) 再用最高优先级的 Generator 兜底（防止某些边缘时序）
+class PermalinkGenerator < Jekyll::Generator
+  priority :highest
+  def generate(site)
+    site.posts.docs.each { |doc| Jekyll::PermalinkNormalizer.normalize!(doc) }
   end
 end
