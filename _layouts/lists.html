@@ -6,6 +6,8 @@ layout: page
 {% include lang.html %}
 {% assign top = page.top | default: page.title %}
 
+<!-- lists-layout-signature: 2025-08-14 inline -->
+
 <article class="mb-4">
   {{ content }}
 </article>
@@ -43,11 +45,11 @@ layout: page
   {% capture _l1_url %}/{{ top | slugify | url_encode }}/{{ l1 | slugify | url_encode }}/{% endcapture %}
   {% assign l1_collapse_id = "L1-" | append: group_index %}
 
-  <div class="card categories mb-3">
-    <!-- 一级头部：整行折叠触发，只有文字是链接；左侧内边距接近 Chirpy 默认 -->
+  <div class="card categories mb-3 cat-section" data-level="l1">
+    <!-- 一级头部：整行折叠触发，只有文字是链接 -->
     <div class="card-header d-flex align-items-center justify-content-between l1-row"
          role="button"
-         data-bs-toggle="collapse"
+         tabindex="0"
          data-bs-target="#{{ l1_collapse_id }}"
          aria-expanded="true"
          aria-controls="{{ l1_collapse_id }}">
@@ -57,7 +59,7 @@ layout: page
         <i class="far fa-folder l1-folder-icon me-3"></i>
 
         <!-- 只有文字是链接；不铺满整行 -->
-        <a href="{{ _l1_url | relative_url }}" class="l1-link text-decoration-none me-2">{{ l1 }}</a>
+        <a href="{{ _l1_url | relative_url }}" class="l1-link text-decoration-none me-2 text-link">{{ l1 }}</a>
 
         <span class="text-muted small">
           {% if l2_all.size > 0 %}{{ l2_all.size }} categories,{% endif %}
@@ -78,7 +80,7 @@ layout: page
         {% for post in direct_posts %}
           <li class="list-group-item">
             <i class="far fa-file fa-fw"></i>
-            <a href="{{ post.url | relative_url }}" class="mx-2">{{ post.title }}</a>
+            <a href="{{ post.url | relative_url }}" class="mx-2 text-link">{{ post.title }}</a>
           </li>
         {% endfor %}
 
@@ -88,11 +90,11 @@ layout: page
           {% capture _l2_url %}/{{ top | slugify | url_encode }}/{{ l1 | slugify | url_encode }}/{{ l2 | slugify | url_encode }}/{% endcapture %}
           {% assign l2_collapse_id = "L2-" | append: group_index | append: "-" | append: forloop.index %}
 
-          <li class="list-group-item">
+          <li class="list-group-item subcat-section" data-level="l2">
             <!-- 二级整行触发器 -->
             <div class="d-flex align-items-center w-100 l2-row"
                  role="button"
-                 data-bs-toggle="collapse"
+                 tabindex="0"
                  data-bs-target="#{{ l2_collapse_id }}"
                  aria-expanded="false"
                  aria-controls="{{ l2_collapse_id }}">
@@ -103,8 +105,8 @@ layout: page
               <!-- 文件夹图标 -->
               <i class="far fa-folder l2-folder-icon me-2"></i>
 
-              <!-- 只有文字是链接；不铺满整行 -->
-              <a href="{{ _l2_url | relative_url }}" class="l2-link text-decoration-none mx-1">{{ l2 }}</a>
+              <!-- 只有文字是链接 -->
+              <a href="{{ _l2_url | relative_url }}" class="l2-link text-decoration-none mx-1 text-link">{{ l2 }}</a>
 
               <!-- 右侧计数 -->
               <span class="text-muted small ms-auto">
@@ -117,7 +119,7 @@ layout: page
               {% for post in posts_l2 %}
                 <li class="list-group-item">
                   <i class="far fa-file fa-fw"></i>
-                  <a href="{{ post.url | relative_url }}" class="mx-2">{{ post.title }}</a>
+                  <a href="{{ post.url | relative_url }}" class="mx-2 text-link">{{ post.title }}</a>
                 </li>
               {% endfor %}
             </ul>
@@ -132,84 +134,134 @@ layout: page
 {% endfor %}
 
 <style>
-/* ——整体风格与间距优化—— */
+/* —— 内联样式：不依赖外部 CSS/JS —— */
 
-/* 一级头部：左内边距更接近 Chirpy 默认（比 Bootstrap 默认略大） */
-.card.categories > .card-header { padding-left: 1.5rem; } /* ≈ ps-4 */
+/* 折叠显隐（无需 bootstrap） */
+.collapse { display: none; }
+.collapse.show { display: block; }
 
-/* 一级文件夹与文字的间距再大一点 */
-.l1-folder-icon { margin-right: .875rem !important; } /* me-3 基础上再稳固一层 */
+/* 箭头 0.3s 旋转动画 */
+.l1-chevron, .l2-chevron { transition: transform .3s ease; }
 
-/* 二级：箭头与文件夹间距更大 */
-.l2-chevron { margin-right: .75rem !important; }      /* 比 me-2 略大 */
+/* 一级展开时箭头向下（原本向左），二级展开时箭头向下（原本向右） */
+.cat-section.open  .l1-chevron { transform: rotate(90deg); }
+.subcat-section.open .l2-chevron { transform: rotate(90deg); }
+
+/* 文件夹图标颜色过渡（可选） */
+.l1-folder-icon, .l2-folder-icon { transition: color .3s ease; }
+
+/* 仅文字为链接，避免链接扩张成整行；行点击手势 */
+.l1-link, .l2-link { display: inline; }
+.l1-row, .l2-row { cursor: pointer; position: relative; }
+
+/* 避免“点击层覆盖文字链接”：让文字链接位于更高层级 */
+.text-link { position: relative; z-index: 2; }
+
+/* 行的点击热区铺满，但不挡住链接（z-index 更低） */
+.l1-row::before, .l2-row::before {
+  content: "";
+  position: absolute; inset: 0;
+  z-index: 1;
+}
+
+/* 用伪元素绘制分隔线，避免因折叠引起的回流闪烁 */
+.cat-section, .subcat-section { position: relative; }
+.cat-section::after, .subcat-section::after {
+  content: ""; display: block; height: 1px;
+  background: var(--border, rgba(0,0,0,.15));
+  opacity: .6; transform: translateZ(0);
+}
+
+/* 一级头部：左内边距略大，类似 Chirpy 习惯 */
+.card.categories > .card-header { padding-left: 1.5rem; }
+.l1-folder-icon { margin-right: .875rem !important; }
+.l2-chevron { margin-right: .75rem !important; }
 .l2-folder-icon { margin-right: .5rem !important; }
-
-/* 仅文字为链接，避免链接扩张成整行 */
-.l1-link, .l2-link { display: inline; flex: 0 0 auto; }
-
-/* 行点击手势 */
-.l1-row, .l2-row { cursor: pointer; }
-
-/* 箭头与文件夹的过渡动画：改为 0.3s */
-.l1-chevron, .l2-chevron { transition: transform 0.3s ease; }
-.l1-folder-icon, .l2-folder-icon { transition: color 0.3s ease; }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  // —— 链接点击：显式导航，确保一定跳转；支持 Ctrl/⌘ 新开标签 ——
-  function handleLinkClick(e, a) {
-    e.stopPropagation(); // 不触发展开/收起
-    const href = a.getAttribute('href');
-    if (!href) return;
-
-    if (e.button === 1 || e.ctrlKey || e.metaKey) {
-      // 中键或 Ctrl/⌘-点击：新开标签
-      e.preventDefault();
-      window.open(href, '_blank');
-    } else {
-      // 常规左键：显式导航，避免被上层行为干扰
-      e.preventDefault();
-      window.location.assign(href);
-    }
-  }
-  document.querySelectorAll('.l1-link, .l2-link').forEach(function (a) {
-    a.addEventListener('click', function (e) { handleLinkClick(e, this); });
-  });
-
-  // —— 角度映射 —— 
-  // L1: 折叠=180°(向左)，展开=90°(向下)
-  // L2: 折叠=0°(向右)，  展开=90°(向下)
-  function angleFor(level, expanded) {
-    if (level === 'l1') return expanded ? 90 : 180;
-    return expanded ? 90 : 0; // l2
+/* —— 内联脚本（不依赖 Bootstrap） —— */
+(function () {
+  function onReady(fn) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn, { once: true });
+    } else { fn(); }
   }
 
-  // 按当前状态同步（初始化 & 事件回调）
-  function syncByState(targetEl, expanded) {
-    const idSel = '#' + targetEl.id;
-    document.querySelectorAll('[data-bs-target="' + idSel + '"]').forEach(function (row) {
-      const isL1 = row.classList.contains('l1-row');
-      const level = isL1 ? 'l1' : 'l2';
-      const chev = row.querySelector(isL1 ? '.l1-chevron' : '.l2-chevron');
-      const fol  = row.querySelector(isL1 ? '.l1-folder-icon' : '.l2-folder-icon');
-      if (chev) chev.style.transform = 'rotate(' + angleFor(level, expanded) + 'deg)';
-      if (fol) {
-        fol.classList.toggle('fa-folder-open', expanded);
-        fol.classList.toggle('fa-folder', !expanded);
-      }
+  function getPanel(row) {
+    var sel = row.getAttribute('data-bs-target');
+    if (!sel) return null;
+    try { return document.querySelector(sel); } catch (e) { return null; }
+  }
+
+  function setExpanded(row, panel, expanded) {
+    if (!row || !panel) return;
+    panel.classList.toggle('show', expanded);
+    row.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    var container = row.closest('.cat-section, .subcat-section');
+    if (container) container.classList.toggle('open', expanded);
+  }
+
+  function toggleRow(row) {
+    var panel = getPanel(row);
+    if (!panel) return;
+    var willShow = !panel.classList.contains('show');
+    setExpanded(row, panel, willShow);
+  }
+
+  function isLinkClick(e) {
+    return !!e.target.closest('a');
+  }
+
+  onReady(function () {
+    var root = document;
+
+    // 初始化：根据 .collapse 是否含 .show 同步 open/箭头
+    root.querySelectorAll('.l1-row, .l2-row').forEach(function (row) {
+      var panel = getPanel(row);
+      if (!panel) return;
+      setExpanded(row, panel, panel.classList.contains('show'));
     });
-  }
 
-  // 初始状态：按是否含 .show 同步一次
-  document.querySelectorAll('.collapse').forEach(function (el) {
-    syncByState(el, el.classList.contains('show'));
-  });
+    // 事件委托：行点击用于折叠/展开；点击文字链接不拦截
+    root.addEventListener('click', function (e) {
+      var row = e.target.closest('.l1-row, .l2-row');
+      if (!row) return;
 
-  // 使用“动画开始事件”而非“动画结束事件”，点击后立刻变化
-  document.querySelectorAll('.collapse').forEach(function (el) {
-    el.addEventListener('show.bs.collapse',  function (e) { syncByState(e.target, true);  });
-    el.addEventListener('hide.bs.collapse',  function (e) { syncByState(e.target, false); });
+      if (isLinkClick(e)) return; // 文字链接正常跳转
+      e.preventDefault();
+      toggleRow(row);
+    }, false);
+
+    // 键盘可达性：Space/Enter 触发展开/收起
+    root.addEventListener('keydown', function (e) {
+      var row = e.target.closest('.l1-row, .l2-row');
+      if (!row) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleRow(row);
+      }
+    }, false);
+
+    // 可选：根据当前 URL 自动展开对应层级（若存在匹配的链接）
+    try {
+      var path = location.pathname.replace(/\/+$/, '');
+      var cur = root.querySelector('a.text-link[href="' + path + '/"], a.text-link[href="' + path + '"]');
+      if (cur) {
+        var l2sec = cur.closest('.subcat-section');
+        if (l2sec) {
+          var l2row = l2sec.querySelector('.l2-row');
+          var l2panel = getPanel(l2row);
+          setExpanded(l2row, l2panel, true);
+        }
+        var l1sec = cur.closest('.cat-section') || root.querySelector('.cat-section');
+        if (l1sec) {
+          var l1row = l1sec.querySelector('.l1-row');
+          var l1panel = getPanel(l1row);
+          setExpanded(l1row, l1panel, true);
+        }
+      }
+    } catch (_) {}
   });
-});
+})();
 </script>
