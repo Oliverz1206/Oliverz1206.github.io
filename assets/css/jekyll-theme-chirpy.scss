@@ -1,0 +1,33 @@
+---
+---
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* append your custom style below */
+/* ============================
+   Generic list tree for [data-lists]
+   ============================ */
+/* 箭头旋转动画（0.3s） */
+/* 仅作用于含 data-lists 的页面 */
+[data-lists] .l1-row .l1-chevron,
+[data-lists] .l2-row .l2-chevron {
+  transition: transform .3s ease;
+}
+
+/* 箭头方向：由 .collapsed 控制（JS/Bootstrap 事件同步） */
+[data-lists] .l1-row:not(.collapsed) .l1-chevron { transform: rotate(90deg); }
+[data-lists] .l1-row.collapsed       .l1-chevron { transform: rotate(0deg);  }
+
+[data-lists] .l2-row:not(.collapsed) .l2-chevron { transform: rotate(90deg); }
+[data-lists] .l2-row.collapsed       .l2-chevron { transform: rotate(0deg);  }
+
+/* 二级箭头略小，保持对齐 */
+[data-lists] .l2-row .l2-chevron { font-size: .75em; line-height: 1; }
+
+/* 高度动画期间减少闪烁；动画本身由 Bootstrap 实现 */
+[data-lists] .collapse { overflow: hidden; will-change: height; }

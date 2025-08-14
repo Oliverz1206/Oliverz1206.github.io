@@ -191,6 +191,21 @@ defaults:
       # to update the code of all other post links in this project.
       permalink: /:categories/:title/
   - scope:
+      path: "_posts/projects"
+      type: posts
+    values:
+      layout: postcard
+  - scope:
+      path: "_posts/publications"
+      type: posts
+    values:
+      layout: postcard
+  - scope:
+      path: "_posts/notes"
+      type: posts
+    values:
+      layout: note
+  - scope:
       path: _drafts
     values:
       comments: false

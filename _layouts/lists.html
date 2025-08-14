@@ -1,267 +1,121 @@
 ---
 layout: page
-# Hierarchical list layout for Notes-like pages
+# Hierarchical list layout
 ---
 
 {% include lang.html %}
 {% assign top = page.top | default: page.title %}
 
-<!-- lists-layout-signature: 2025-08-14 inline -->
-
 <article class="mb-4">
   {{ content }}
 </article>
 
-{% assign group_index = 0 %}
+<!-- 根容器，脚本按此作用域工作 -->
+<div data-lists>
+  {% assign group_index = 0 %}
 
-{%- comment -%} 所有属于 top（如 "Notes"）的文章 {%- endcomment -%}
-{% assign posts_all = site.posts | where_exp: "post", "post.categories and post.categories[0] == top" %}
+  {%- comment -%} 顶层分类匹配（categories[0] == top） {%- endcomment -%}
+  {% assign posts_all = site.posts | where_exp: "post", "post.categories and post.categories[0] == top" %}
 
-{%- comment -%} 一级分类（categories[1]） {%- endcomment -%}
-{% assign l1_all = "" | split: "" %}
-{% for post in posts_all %}
-  {% assign l1 = post.categories[1] %}
-  {% if l1 and l1_all contains l1 %}
-  {% elsif l1 %}
-    {% assign l1_all = l1_all | push: l1 %}
-  {% endif %}
-{% endfor %}
-{% assign l1_all = l1_all | sort %}
-
-{% for l1 in l1_all %}
-  {% assign sub_posts = posts_all | where_exp: "p", "p.categories[1] == l1" %}
-
-  {%- comment -%} 二级分类（categories[2]） {%- endcomment -%}
-  {% assign l2_all = "" | split: "" %}
-  {% for p in sub_posts %}
-    {% assign l2 = p.categories[2] %}
-    {% if l2 and l2_all contains l2 %}
-    {% elsif l2 %}
-      {% assign l2_all = l2_all | push: l2 %}
+  {%- comment -%} 一级分类（categories[1]）去重并排序 {%- endcomment -%}
+  {% assign l1_all = "" | split: "" %}
+  {% for post in posts_all %}
+    {% assign l1 = post.categories[1] %}
+    {% if l1 and l1_all contains l1 %}
+    {% elsif l1 %}
+      {% assign l1_all = l1_all | push: l1 %}
     {% endif %}
   {% endfor %}
-  {% assign l2_all = l2_all | sort %}
+  {% assign l1_all = l1_all | sort %}
 
-  {% capture _l1_url %}/{{ top | slugify | url_encode }}/{{ l1 | slugify | url_encode }}/{% endcapture %}
-  {% assign l1_collapse_id = "L1-" | append: group_index %}
+  {% for l1 in l1_all %}
+    {% assign sub_posts = posts_all | where_exp: "p", "p.categories[1] == l1" %}
 
-  <div class="card categories mb-3 cat-section" data-level="l1">
-    <!-- 一级头部：整行折叠触发，只有文字是链接 -->
-    <div class="card-header d-flex align-items-center justify-content-between l1-row"
-         role="button"
-         tabindex="0"
-         data-bs-target="#{{ l1_collapse_id }}"
-         aria-expanded="true"
-         aria-controls="{{ l1_collapse_id }}">
+    {%- comment -%} 二级分类（categories[2]）去重并排序 {%- endcomment -%}
+    {% assign l2_all = "" | split: "" %}
+    {% for p in sub_posts %}
+      {% assign l2 = p.categories[2] %}
+      {% if l2 and l2_all contains l2 %}
+      {% elsif l2 %}
+        {% assign l2_all = l2_all | push: l2 %}
+      {% endif %}
+    {% endfor %}
+    {% assign l2_all = l2_all | sort %}
 
-      <div class="d-flex align-items-center">
-        <!-- 文件夹图标（随状态变更） -->
-        <i class="far fa-folder l1-folder-icon me-3"></i>
+    {% capture _l1_url %}/{{ top | slugify | url_encode }}/{{ l1 | slugify | url_encode }}/{% endcapture %}
+    {% assign l1_collapse_id = "L1-" | append: group_index %}
+    {% assign group_index = group_index | plus: 1 %}
 
-        <!-- 只有文字是链接；不铺满整行 -->
-        <a href="{{ _l1_url | relative_url }}" class="l1-link text-decoration-none me-2 text-link">{{ l1 }}</a>
-
-        <span class="text-muted small">
-          {% if l2_all.size > 0 %}{{ l2_all.size }} categories,{% endif %}
-          {{ sub_posts.size }} post{% if sub_posts.size > 1 %}s{% endif %}
-        </span>
+    <div class="card categories mb-3" data-level="l1">
+      <!-- 行级触发器：用 data-collapse（由 JS 调用 Bootstrap API 切换） -->
+      <div class="card-header d-flex align-items-center justify-content-between l1-row"
+           role="button" tabindex="0"
+           data-collapse="#{{ l1_collapse_id }}"
+           aria-controls="{{ l1_collapse_id }}"
+           aria-expanded="true">
+        <div class="d-flex align-items-center">
+          <i class="far fa-folder l1-folder-icon me-3"></i>
+          <!-- 文字链接：正常跳转；JS 会 stopPropagation，避免触发行折叠 -->
+          <a href="{{ _l1_url | relative_url }}"
+             class="l1-link text-decoration-none me-2"
+             data-no-collapse>{{ l1 }}</a>
+          <span class="text-muted small">
+            {% if l2_all.size > 0 %}{{ l2_all.size }} categories,{% endif %}
+            {{ sub_posts.size }} post{% if sub_posts.size > 1 %}s{% endif %}
+          </span>
+        </div>
+        <i class="fas fa-angle-right fa-fw l1-chevron"></i>
       </div>
 
-      <!-- 右侧箭头（唯一箭头） -->
-      <i class="fas fa-angle-right fa-fw l1-chevron"></i>
+      <!-- L1 面板默认展开 -->
+      <div id="{{ l1_collapse_id }}" class="collapse show">
+        <ul class="list-group">
+
+          {%- comment -%} 直接挂在 L1 的文章（无 L2） {%- endcomment -%}
+          {% assign direct_posts = sub_posts | where_exp: "p", "p.categories.size < 3 or p.categories[2] == nil" %}
+          {% for post in direct_posts %}
+            <li class="list-group-item">
+              <i class="far fa-file fa-fw"></i>
+              <a href="{{ post.url | relative_url }}" class="mx-2" data-no-collapse>{{ post.title }}</a>
+            </li>
+          {% endfor %}
+
+          {%- comment -%} L2 分类块 {%- endcomment -%}
+          {% for l2 in l2_all %}
+            {% assign posts_l2 = sub_posts | where_exp: "p", "p.categories[2] == l2" %}
+            {% capture _l2_url %}/{{ top | slugify | url_encode }}/{{ l1 | slugify | url_encode }}/{{ l2 | slugify | url_encode }}/{% endcapture %}
+            {% assign l2_collapse_id = "L2-" | append: group_index %}
+            {% assign group_index = group_index | plus: 1 %}
+
+            <li class="list-group-item">
+              <!-- L2 默认收起：初始加 .collapsed（用于箭头方向） -->
+              <div class="d-flex align-items-center w-100 l2-row collapsed"
+                   role="button" tabindex="0"
+                   data-collapse="#{{ l2_collapse_id }}"
+                   aria-controls="{{ l2_collapse_id }}"
+                   aria-expanded="false">
+                <i class="fas fa-chevron-right fa-fw l2-chevron me-2"></i>
+                <i class="far fa-folder l2-folder-icon me-3"></i>
+                <a href="{{ _l2_url | relative_url }}"
+                   class="l2-link text-decoration-none mx-1"
+                   data-no-collapse>{{ l2 }}</a>
+                <span class="text-muted small ms-auto">
+                  {{ posts_l2.size }} post{% if posts_l2.size > 1 %}s{% endif %}
+                </span>
+              </div>
+
+              <ul class="list-group ms-3 mt-2 collapse" id="{{ l2_collapse_id }}">
+                {% for post in posts_l2 %}
+                  <li class="list-group-item">
+                    <i class="far fa-file fa-fw"></i>
+                    <a href="{{ post.url | relative_url }}" class="mx-2" data-no-collapse>{{ post.title }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-
-    <!-- 一级内容 -->
-    <div id="{{ l1_collapse_id }}" class="collapse show">
-      <ul class="list-group">
-
-        {%- comment -%} 直接挂在 L1 下的文章（无 L2） {%- endcomment -%}
-        {% assign direct_posts = sub_posts | where_exp: "p", "p.categories.size < 3 or p.categories[2] == nil" %}
-        {% for post in direct_posts %}
-          <li class="list-group-item">
-            <i class="far fa-file fa-fw"></i>
-            <a href="{{ post.url | relative_url }}" class="mx-2 text-link">{{ post.title }}</a>
-          </li>
-        {% endfor %}
-
-        {%- comment -%} L2 分类块 {%- endcomment -%}
-        {% for l2 in l2_all %}
-          {% assign posts_l2 = sub_posts | where_exp: "p", "p.categories[2] == l2" %}
-          {% capture _l2_url %}/{{ top | slugify | url_encode }}/{{ l1 | slugify | url_encode }}/{{ l2 | slugify | url_encode }}/{% endcapture %}
-          {% assign l2_collapse_id = "L2-" | append: group_index | append: "-" | append: forloop.index %}
-
-          <li class="list-group-item subcat-section" data-level="l2">
-            <!-- 二级整行触发器 -->
-            <div class="d-flex align-items-center w-100 l2-row"
-                 role="button"
-                 tabindex="0"
-                 data-bs-target="#{{ l2_collapse_id }}"
-                 aria-expanded="false"
-                 aria-controls="{{ l2_collapse_id }}">
-
-              <!-- 左侧箭头 -->
-              <i class="fas fa-chevron-right fa-fw l2-chevron me-3"></i>
-
-              <!-- 文件夹图标 -->
-              <i class="far fa-folder l2-folder-icon me-2"></i>
-
-              <!-- 只有文字是链接 -->
-              <a href="{{ _l2_url | relative_url }}" class="l2-link text-decoration-none mx-1 text-link">{{ l2 }}</a>
-
-              <!-- 右侧计数 -->
-              <span class="text-muted small ms-auto">
-                {{ posts_l2.size }} post{% if posts_l2.size > 1 %}s{% endif %}
-              </span>
-            </div>
-
-            <!-- L2 下的文章（适度缩进） -->
-            <ul class="list-group ms-3 mt-2 collapse" id="{{ l2_collapse_id }}">
-              {% for post in posts_l2 %}
-                <li class="list-group-item">
-                  <i class="far fa-file fa-fw"></i>
-                  <a href="{{ post.url | relative_url }}" class="mx-2 text-link">{{ post.title }}</a>
-                </li>
-              {% endfor %}
-            </ul>
-          </li>
-        {% endfor %}
-
-      </ul>
-    </div>
-  </div>
-
-  {% assign group_index = group_index | plus: 1 %}
-{% endfor %}
-
-<style>
-/* —— 内联样式：不依赖外部 CSS/JS —— */
-
-/* 折叠显隐（无需 bootstrap） */
-.collapse { display: none; }
-.collapse.show { display: block; }
-
-/* 箭头 0.3s 旋转动画 */
-.l1-chevron, .l2-chevron { transition: transform .3s ease; }
-
-/* 一级展开时箭头向下（原本向左），二级展开时箭头向下（原本向右） */
-.cat-section.open  .l1-chevron { transform: rotate(90deg); }
-.subcat-section.open .l2-chevron { transform: rotate(90deg); }
-
-/* 文件夹图标颜色过渡（可选） */
-.l1-folder-icon, .l2-folder-icon { transition: color .3s ease; }
-
-/* 仅文字为链接，避免链接扩张成整行；行点击手势 */
-.l1-link, .l2-link { display: inline; }
-.l1-row, .l2-row { cursor: pointer; position: relative; }
-
-/* 避免“点击层覆盖文字链接”：让文字链接位于更高层级 */
-.text-link { position: relative; z-index: 2; }
-
-/* 行的点击热区铺满，但不挡住链接（z-index 更低） */
-.l1-row::before, .l2-row::before {
-  content: "";
-  position: absolute; inset: 0;
-  z-index: 1;
-}
-
-/* 用伪元素绘制分隔线，避免因折叠引起的回流闪烁 */
-.cat-section, .subcat-section { position: relative; }
-.cat-section::after, .subcat-section::after {
-  content: ""; display: block; height: 1px;
-  background: var(--border, rgba(0,0,0,.15));
-  opacity: .6; transform: translateZ(0);
-}
-
-/* 一级头部：左内边距略大，类似 Chirpy 习惯 */
-.card.categories > .card-header { padding-left: 1.5rem; }
-.l1-folder-icon { margin-right: .875rem !important; }
-.l2-chevron { margin-right: .75rem !important; }
-.l2-folder-icon { margin-right: .5rem !important; }
-</style>
-
-<script>
-/* —— 内联脚本（不依赖 Bootstrap） —— */
-(function () {
-  function onReady(fn) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', fn, { once: true });
-    } else { fn(); }
-  }
-
-  function getPanel(row) {
-    var sel = row.getAttribute('data-bs-target');
-    if (!sel) return null;
-    try { return document.querySelector(sel); } catch (e) { return null; }
-  }
-
-  function setExpanded(row, panel, expanded) {
-    if (!row || !panel) return;
-    panel.classList.toggle('show', expanded);
-    row.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-    var container = row.closest('.cat-section, .subcat-section');
-    if (container) container.classList.toggle('open', expanded);
-  }
-
-  function toggleRow(row) {
-    var panel = getPanel(row);
-    if (!panel) return;
-    var willShow = !panel.classList.contains('show');
-    setExpanded(row, panel, willShow);
-  }
-
-  function isLinkClick(e) {
-    return !!e.target.closest('a');
-  }
-
-  onReady(function () {
-    var root = document;
-
-    // 初始化：根据 .collapse 是否含 .show 同步 open/箭头
-    root.querySelectorAll('.l1-row, .l2-row').forEach(function (row) {
-      var panel = getPanel(row);
-      if (!panel) return;
-      setExpanded(row, panel, panel.classList.contains('show'));
-    });
-
-    // 事件委托：行点击用于折叠/展开；点击文字链接不拦截
-    root.addEventListener('click', function (e) {
-      var row = e.target.closest('.l1-row, .l2-row');
-      if (!row) return;
-
-      if (isLinkClick(e)) return; // 文字链接正常跳转
-      e.preventDefault();
-      toggleRow(row);
-    }, false);
-
-    // 键盘可达性：Space/Enter 触发展开/收起
-    root.addEventListener('keydown', function (e) {
-      var row = e.target.closest('.l1-row, .l2-row');
-      if (!row) return;
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        toggleRow(row);
-      }
-    }, false);
-
-    // 可选：根据当前 URL 自动展开对应层级（若存在匹配的链接）
-    try {
-      var path = location.pathname.replace(/\/+$/, '');
-      var cur = root.querySelector('a.text-link[href="' + path + '/"], a.text-link[href="' + path + '"]');
-      if (cur) {
-        var l2sec = cur.closest('.subcat-section');
-        if (l2sec) {
-          var l2row = l2sec.querySelector('.l2-row');
-          var l2panel = getPanel(l2row);
-          setExpanded(l2row, l2panel, true);
-        }
-        var l1sec = cur.closest('.cat-section') || root.querySelector('.cat-section');
-        if (l1sec) {
-          var l1row = l1sec.querySelector('.l1-row');
-          var l1panel = getPanel(l1row);
-          setExpanded(l1row, l1panel, true);
-        }
-      }
-    } catch (_) {}
-  });
-})();
-</script>
+  {% endfor %}
+</div>
