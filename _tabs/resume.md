@@ -1,25 +1,13 @@
 ---
-layout: page
+layout: resume
 title: Resume
 icon: fas fa-file
 order: 1
+download_en: /assets/files/resume_en.pdf
+download_cn: /assets/files/resume_cn.pdf
 ---
 
-<div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: -1.5rem; margin-bottom: 1rem;">
-  <button id="toggle-lang"
-          style="width: 160px; height: 36px; font-size: 14px; border: 1px solid #007bff; background: white; color: #007bff; border-radius: 5px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
-    <i class="fas fa-language"></i> &nbsp; <span id="toggle-lang-text">切换为中文</span>
-  </button>
-  <a href="{{ '/assets/files/resume_cn.pdf' | relative_url }}"
-     download
-     id="download-btn"
-     style="width: 160px; height: 36px; font-size: 14px; border: 1px solid #198754; background: white; color: #198754; border-radius: 5px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;">
-    <i class="fas fa-file-download"></i> &nbsp; <span id="download-text">Download PDF</span>
-  </a>
-</div>
-
-
-<div id="lang-en" markdown="1">
+<!--lang:en-->
 
 ## Yunfan Zhang
 
@@ -150,7 +138,8 @@ Developed an **Intelligent Irrigation System** using KNN, including circuit desi
 </div>
 
 
-<div id="lang-cn" style="display: none;" markdown="1">
+
+<!--lang:cn-->
 
 ## 张云帆
 
@@ -278,25 +267,4 @@ GPA: 3.94 / 4.0（平均分78/100）
 - **深度学习：** CNN、RNN、自监督学习、剪枝与压缩  
 
 </div>
-
-<script>
-  const btn = document.getElementById('toggle-lang');
-  const en = document.getElementById('lang-en');
-  const cn = document.getElementById('lang-cn');
-
-  const langText = document.getElementById('toggle-lang-text');
-  const downloadText = document.getElementById('download-text');
-  const downloadBtn = document.getElementById('download-btn');
-
-  btn.addEventListener('click', () => {
-    const isEnglish = en.style.display !== 'none';
-    en.style.display = isEnglish ? 'none' : '';
-    cn.style.display = isEnglish ? '' : 'none';
-
-    langText.textContent = isEnglish ? 'Switch to English' : '切换为中文';
-    downloadText.textContent = isEnglish ? '下载 PDF 简历' : 'Download PDF';
-    downloadBtn.href = isEnglish ? '{{ "/assets/files/resume_cn.pdf" | relative_url }}' : '{{ "/assets/files/resume_en.pdf" | relative_url }}';
-  });
-</script>
-
 

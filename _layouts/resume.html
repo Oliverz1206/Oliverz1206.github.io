@@ -1,0 +1,78 @@
+---
+layout: page
+# Resume layout: 将内容分成中/英两块并渲染，顶部按钮和交互外置到 resume.js
+---
+
+{% include lang.html %}
+
+{%- comment -%}
+页面变量（可选）：
+- page.download_en: 英文 PDF 链接
+- page.download_cn: 中文 PDF 链接
+- page.default_lang: 初始语言（"en" 或 "cn"，默认 "en"）
+- page.remember_lang: 是否记住上次选择（true/false，默认 false）
+
+正文中用标记分隔两种语言：
+  <!--lang:en-->
+  （英文 Markdown）
+  <!--lang:cn-->
+  （中文 Markdown）
+若只提供一种语言，切换按钮会自动隐藏。
+{%- endcomment -%}
+
+{%- assign raw = content | strip -%}
+
+{%- if raw contains '<!--lang:cn-->' -%}
+  {%- capture en_part -%}{{ raw | split:'<!--lang:cn-->' | first | replace:'<!--lang:en-->','' | strip }}{%- endcapture -%}
+  {%- capture cn_part -%}{{ raw | split:'<!--lang:cn-->' | last  | replace:'<!--lang:en-->','' | strip }}{%- endcapture -%}
+{%- else -%}
+  {%- capture en_part -%}{{ raw | replace:'<!--lang:en-->','' | strip }}{%- endcapture -%}
+  {%- capture cn_part -%}{%- endcapture -%}
+{%- endif -%}
+
+{%- assign has_en = en_part | strip | size -%}
+{%- assign has_cn = cn_part | strip | size -%}
+
+{%- assign href_en = page.download_en -%}
+{%- assign href_cn = page.download_cn -%}
+{%- assign initial_href = href_en | default: href_cn | default: '#' -%}
+
+{%- assign default_lang = page.default_lang | default: 'en' -%}
+{%- assign remember_lang = page.remember_lang | default: false -%}
+
+<article data-resume
+         data-default-lang="{{ default_lang }}"
+         data-remember-lang="{{ remember_lang }}">
+
+  <div class="resume-actions">
+    <button id="toggle-lang"
+            class="resume-btn resume-btn--ghost"
+            type="button"
+            aria-controls="lang-en lang-cn"
+            {%- if has_en == 0 or has_cn == 0 -%} style="display:none"{%- endif -%}>
+      <i class="fas fa-language"></i>
+      <span id="toggle-lang-text">切换为中文</span>
+    </button>
+
+    <a id="download-btn"
+       class="resume-btn resume-btn--solid"
+       href="{{ initial_href | relative_url }}"
+       {%- if href_en -%} data-href-en="{{ href_en | relative_url }}"{%- endif -%}
+       {%- if href_cn -%} data-href-cn="{{ href_cn | relative_url }}"{%- endif -%}
+       download>
+      <i class="fas fa-file-download"></i>
+      <span id="download-text">Download PDF</span>
+    </a>
+  </div>
+
+  <!-- 英文正文（默认显示；若为空则隐藏） -->
+  <div id="lang-en" {%- if has_en == 0 -%}class="is-hidden"{%- endif -%}>
+    {{ en_part | markdownify }}
+  </div>
+
+  <!-- 中文正文（默认隐藏；点击按钮后显示） -->
+  <div id="lang-cn" class="is-hidden">
+    {{ cn_part | markdownify }}
+  </div>
+
+</article>
