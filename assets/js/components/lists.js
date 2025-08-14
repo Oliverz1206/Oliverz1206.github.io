@@ -1,8 +1,6 @@
 /*!
- * 行级折叠/展开（Bootstrap 动画） + 文字链接正常跳转
- * - 行元素(.l1-row/.l2-row)使用 data-collapse="#ID"
- * - JS 调用 bootstrap.Collapse API 执行动画与切换
- * - a[data-no-collapse] 仅 stopPropagation，保留默认跳转
+ * 行级折叠/展开（Bootstrap 动画） + 文字链接跳转
+ * 额外：展开时将 .l1-folder-icon/.l2-folder-icon 从 fa-folder 切到 fa-folder-open；收起时反之
  */
 (function () {
   'use strict';
@@ -14,21 +12,18 @@
     const hasBootstrap =
       !!(window.bootstrap && bootstrap.Collapse && typeof bootstrap.Collapse.getOrCreateInstance === 'function');
 
-    // 1) 链接点击：捕获阶段阻止冒泡，保证文字跳转但不触发行折叠
+    // 仅阻止“文字链接”的冒泡，保留默认跳转
     root.addEventListener('click', (e) => {
       const a = e.target.closest('a[data-no-collapse]');
       if (a && root.contains(a)) {
-        e.stopPropagation();               // 不触发行折叠
-        // 可选：若上层脚本曾经阻止默认，可强制导航（建议先不用）
-        // window.location.assign(a.href);
-        // e.preventDefault();
+        e.stopPropagation();
       }
-    }, true);
+    }, true); // capture
 
-    // 2) 行级点击：捕获阶段执行，避免被其他脚本截断；用 Bootstrap API 切换
+    // 行级点击（用 data-collapse 目标；由 Bootstrap 执行动画）
     document.addEventListener('click', (e) => {
       if (!root.contains(e.target)) return;
-      if (e.target.closest('a[data-no-collapse]')) return; // 文字链接不处理
+      if (e.target.closest('a[data-no-collapse]')) return;
 
       const row = e.target.closest('.l1-row, .l2-row');
       if (!row || !root.contains(row)) return;
@@ -37,15 +32,13 @@
       if (!sel) return;
 
       const target = root.querySelector(sel);
-      if (!target) return;
-
-      if (!hasBootstrap) return; // 必须加载 bootstrap.bundle.js 才有动画与事件
+      if (!target || !hasBootstrap) return;
 
       const inst = bootstrap.Collapse.getOrCreateInstance(target, { toggle: false });
       inst.toggle();
-    }, true);
+    }, true); // capture
 
-    // 3) 键盘可达性：在行上按 Enter/Space 触发行点击
+    // 键盘可达性
     root.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
       if (e.target.closest('a, button, input, textarea, select')) return;
@@ -55,7 +48,23 @@
       row.click();
     });
 
-    // 4) 将 Bootstrap 折叠事件映射到触发行元素以维护 .collapsed 与 aria-expanded
+    // —— 折叠状态 → 触发行视觉同步（含文件夹开/合图标）——
+    function setRowVisual(row, expanded) {
+      row.classList.toggle('collapsed', !expanded);
+      row.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+
+      const icon = row.querySelector('.l1-folder-icon, .l2-folder-icon');
+      if (icon) {
+        if (expanded) {
+          icon.classList.remove('fa-folder');
+          icon.classList.add('fa-folder-open');
+        } else {
+          icon.classList.remove('fa-folder-open');
+          icon.classList.add('fa-folder');
+        }
+      }
+    }
+
     function rowsFor(collapseEl) {
       if (!collapseEl.id) return [];
       const idSel = '#' + (window.CSS && CSS.escape ? CSS.escape(collapseEl.id) : collapseEl.id);
@@ -66,27 +75,18 @@
 
     if (hasBootstrap) {
       root.addEventListener('show.bs.collapse', (e) => {
-        rowsFor(e.target).forEach((row) => {
-          row.classList.remove('collapsed');
-          row.setAttribute('aria-expanded', 'true');
-        });
+        rowsFor(e.target).forEach((row) => setRowVisual(row, true));
       });
       root.addEventListener('hide.bs.collapse', (e) => {
-        rowsFor(e.target).forEach((row) => {
-          row.classList.add('collapsed');
-          row.setAttribute('aria-expanded', 'false');
-        });
+        rowsFor(e.target).forEach((row) => setRowVisual(row, false));
       });
     }
 
-    // 5) 初始同步与实例化（不自动切换）
+    // 初始同步（含文件夹开/合图标）
     if (hasBootstrap) {
       root.querySelectorAll('.collapse[id]').forEach((col) => {
         const expanded = col.classList.contains('show');
-        rowsFor(col).forEach((row) => {
-          row.classList.toggle('collapsed', !expanded);
-          row.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-        });
+        rowsFor(col).forEach((row) => setRowVisual(row, expanded));
         bootstrap.Collapse.getOrCreateInstance(col, { toggle: false });
       });
     }

@@ -12,22 +12,36 @@
 /* ============================
    Generic list tree for [data-lists]
    ============================ */
-/* 箭头旋转动画（0.3s） */
-/* 仅作用于含 data-lists 的页面 */
+/* 0) 箭头旋转动画（0.3s）+ 用触发器上的 .collapsed 驱动方向 */
 [data-lists] .l1-row .l1-chevron,
 [data-lists] .l2-row .l2-chevron {
-  transition: transform .3s ease;
+  transition: transform .3s ease; /* 旋转动画时长 */
 }
-
-/* 箭头方向：由 .collapsed 控制（JS/Bootstrap 事件同步） */
-[data-lists] .l1-row:not(.collapsed) .l1-chevron { transform: rotate(90deg); }
-[data-lists] .l1-row.collapsed       .l1-chevron { transform: rotate(0deg);  }
-
+[data-lists] .l1-row:not(.collapsed) .l1-chevron { transform: rotate(90deg); } /* 展开时箭头朝下 */
+[data-lists] .l1-row.collapsed       .l1-chevron { transform: rotate(0deg);  } /* 收起时箭头向右 */
 [data-lists] .l2-row:not(.collapsed) .l2-chevron { transform: rotate(90deg); }
 [data-lists] .l2-row.collapsed       .l2-chevron { transform: rotate(0deg);  }
 
-/* 二级箭头略小，保持对齐 */
-[data-lists] .l2-row .l2-chevron { font-size: .75em; line-height: 1; }
+/* 0.1) 二级箭头略小 */
+[data-lists] .l2-row .l2-chevron { font-size: 0.75rem; line-height: 1; }
 
-/* 高度动画期间减少闪烁；动画本身由 Bootstrap 实现 */
+/* 0.2) 折叠高度动画期间减少闪烁 */
 [data-lists] .collapse { overflow: hidden; will-change: height; }
+
+/* 1) 一级目录文件夹离左边框间距 */
+[data-lists] .l1-row { padding-left: 1.5rem; }
+
+/* 2) 二级目录：箭头和文件夹间距 */
+[data-lists] .l2-row .l2-chevron { margin-right: 0.9rem !important; }
+
+/* 3) 一级/二级目录：文件夹离右侧文字间距 */
+[data-lists] .l1-folder-icon,
+[data-lists] .l2-folder-icon {
+  margin-right: 0.75rem !important;
+  font-size: 0.85rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* 4) 二级目录底下的文件缩进距离 */
+[data-lists] ul.list-group.ms-3 { margin-left: 0.4rem !important; }
