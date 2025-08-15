@@ -1,4 +1,22 @@
 # frozen_string_literal: true
+#
+# 功能：
+# 为 _config.yml 中 `hierarchical_topics` 指定的顶层分类生成两级索引页（`/<Top>/<L1>/` 与 `/<Top>/<L1>/<L2>/`），
+# 并使用 `_layouts/list.html` 渲染；同时向页面注入 `page.top`、`page.level1`、`page.level2`、`page.title` 供布局使用。
+# 
+# 在 _config.yml 的用法：
+#   # 自定义需要生成的顶层分类列表
+#   hierarchical_topics:
+#     - Notes
+#   # 自定义布局文件名，默认使用 list.html
+#   hierarchical_index:
+#     layout: list
+#
+# 前提与约定：
+#   - 每篇文章在 Front Matter 的 `categories` 用数组表达层级，例如：
+#       categories: [Notes, "Computer Engineering", "CPU"]
+#   - 顶层根页（例如 `/notes/`）需由你自行创建（如 `_tabs/notes.md`）。
+#   - 本插件只生成索引页，不改写文章。
 # 
 # 通用“多级索引页”生成器
 # 作用：为 _config.yml.hierarchical_topics 中声明的顶层分类（如 Notes）
@@ -21,20 +39,26 @@
 # - 该生成器不会生成顶层根页（/notes/），你需要自行在 _tabs/notes.md 提供根页。
 # - 为避免 /categories/... 链接，请自行覆盖 post-meta 的分类输出（本文方案已包含）。
 
+# 依赖标准库 Set，用于去重/集合运算
 require 'set'
 
 module Jekyll
-  class HierIndexPage < Page
-    def initialize(site, base, dir, top, l1=nil, l2=nil)
+  # 页面对象：用于生成静态索引页（继承 Jekyll::Page）
+class HierIndexPage < Page
+    # 构造函数：传入站点对象、站点根、目标目录及三段层级名
+  def initialize(site, base, dir, top, l1=nil, l2=nil)
       @site = site
       @base = base
       @dir  = dir
       @name = 'index.html'
 
+      # 设置输出文件名（index.html）
       process(@name)
       # 通用列表布局
+      # 选择渲染布局：默认使用 _layouts/list.html
       read_yaml(File.join(base, '_layouts'), 'list.html')
 
+      # 提供给布局/模版使用的变量
       data['layout']  = 'list'
       data['top']     = top
       data['level1']  = l1
@@ -43,6 +67,7 @@ module Jekyll
       # 页面标题：用于 <title> 或页内 H1
       # 标题只取当前层级名：优先 L2，其次 L1，最后 Top
       parts = [top, l1, l2].compact
+      # 页面标题：优先使用更深层级的名称
       data['title'] = (l2 || l1 || top).to_s
 
       # 收集该页对应的文章
@@ -61,7 +86,7 @@ module Jekyll
 
   class HierarchicalIndexesGenerator < Generator
     safe true
-    priority :low
+    priority :low  # 较低优先级，避免干扰其他生成器
 
     def generate(site)
       tops = site.config['hierarchical_topics'] || []

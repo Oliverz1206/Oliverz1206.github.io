@@ -255,12 +255,7 @@ jekyll-archives:
   permalinks:
     tag: /tags/:name/
 
-# paginate-v2: per-page config lives in the page front matter
-pagination:
-  enabled: true
-  debug: false
-
-# For your hierarchical index generator
+# hierarchical index generator
 hierarchical_topics:
   - Notes
 
@@ -269,10 +264,20 @@ slugify_mode: default
 slug_from_title: true
 slug_rules_debug: false
 
-# showcase rank for postcards format (projects etc..)
-showcase_rank:
-  enabled: true 
-  collections: [posts]            # 作用的集合，默认只对 posts
-  pin_field: "pin"                # 置顶字段名（默认 pin）
-  date_fields: ["date"]           # 日期字段优先级（从前到后尝试），默认只看 date
-  debug: false         
+# paginate-v2: per-page config lives in the page front matter
+pagination:
+  enabled: true
+  debug: false
+
+# showcase pagination
+showcase:
+  enabled: true
+  debug: false
+  collection: posts    # 可写可不写，反正固定为 posts
+  pagination:
+    per_page: 12
+    sort_reverse: true
+
+# Autopage settings
+autopages:
+  enabled: false

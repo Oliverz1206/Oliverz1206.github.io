@@ -10,31 +10,29 @@
 
 /* append your custom style below */
 /* ============================
-   Generic list tree for [data-lists]
+          Lists 页面样式
    ============================ */
-/* 0) 箭头旋转动画（0.3s）+ 用触发器上的 .collapsed 驱动方向 */
+/* 箭头旋转动画 & 用触发器上的 .collapsed 驱动方向 */
 [data-lists] .l1-row .l1-chevron,
-[data-lists] .l2-row .l2-chevron {
-  transition: transform .3s ease; /* 旋转动画时长 */
-}
+[data-lists] .l2-row .l2-chevron { transition: transform .3s ease; }
 [data-lists] .l1-row:not(.collapsed) .l1-chevron { transform: rotate(90deg); } /* 展开时箭头朝下 */
 [data-lists] .l1-row.collapsed       .l1-chevron { transform: rotate(0deg);  } /* 收起时箭头向右 */
 [data-lists] .l2-row:not(.collapsed) .l2-chevron { transform: rotate(90deg); }
 [data-lists] .l2-row.collapsed       .l2-chevron { transform: rotate(0deg);  }
 
-/* 0.1) 二级箭头略小 */
+/* 二级箭头图标大小 */
 [data-lists] .l2-row .l2-chevron { font-size: 0.75rem; line-height: 1; }
 
-/* 0.2) 折叠高度动画期间减少闪烁 */
+/* 折叠高度动画期间减少闪烁 */
 [data-lists] .collapse { overflow: hidden; will-change: height; }
 
-/* 1) 一级目录文件夹离左边框间距 */
+/* 一级目录文件夹离左边框间距 */
 [data-lists] .l1-row { padding-left: 1.5rem; }
 
-/* 2) 二级目录：箭头和文件夹间距 */
+/* 二级目录：箭头和文件夹间距 */
 [data-lists] .l2-row .l2-chevron { margin-right: 0.9rem !important; }
 
-/* 3) 一级/二级目录：文件夹离右侧文字间距 */
+/* 一级/二级目录：文件夹离右侧文字间距 */
 [data-lists] .l1-folder-icon,
 [data-lists] .l2-folder-icon {
   margin-right: 0.75rem !important;
@@ -43,13 +41,13 @@
   vertical-align: middle;
 }
 
-/* 4) 二级目录底下的文件缩进距离 */
+/* 二级目录底下的文件缩进距离 */
 [data-lists] ul.list-group.ms-3 { margin-left: 0.25rem !important; }
 
 
-/* =========================================================================
-   Resume 页面样式（把原先 _tabs/resume.md 里的内联样式迁到这里）
-   ========================================================================= */
+/* ============================
+        Resume 页面样式
+   ============================ */
 /* 顶部按钮行：靠右、间距、上下边距 */
 .resume-actions {
   display: flex;
@@ -61,7 +59,7 @@
 
 /* 通用按钮基类：统一宽高、字体、圆角、居中对齐 */
 .resume-btn {
-  width: 160px;        /* 你之前的尺寸 */
+  width: 160px;
   height: 36px;
   font-size: 14px;
   border-radius: 6px;
@@ -69,7 +67,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  text-decoration: none;  /* a、button 都统一外观 */
+  text-decoration: none;
   line-height: 1;
 }
 
@@ -83,11 +81,28 @@
   border: 1px solid var(--bs-success);
   background: #fff;
   color: var(--bs-success);
-  cursor: pointer; /* 只对 button 需要手型 */
+  cursor: pointer; 
 }
 
-/* 简单的悬停反馈（可按需去掉） */
+/* 简单的悬停反馈 */
 .resume-btn:hover { opacity: .9; }
 
-/* 默认隐藏类：替代行内 style="display:none" */
+/* 用于默认隐藏元素，替代内联 */
 .is-hidden { display: none !important; }
+
+@media (max-width: 575.98px) {
+  .resume-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;           /* 组件间距 */
+    padding-inline: 12px;   /* 容器左右留白 */
+    box-sizing: border-box; /* 避免内边距影响宽度计算 */
+  }
+  .resume-actions .resume-btn,
+  .resume-actions #download-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+}
