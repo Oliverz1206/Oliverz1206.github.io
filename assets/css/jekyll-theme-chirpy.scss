@@ -93,59 +93,25 @@
 /* 用于默认隐藏元素，替代内联 */
 .is-hidden { display: none !important; }
 
-
+/* 手机端：Resume 页面按钮行改为单列栅格布局 */
 @media (max-width: 576px) {
-  /* 让按钮用 Flex 居中排列，取消“为左侧图标让位”的不对称内边距 */
-  .resume .btn,
-  .resume .button {
-    display: flex;
+  [data-resume] .resume-actions {
+    /* 桌面端是 flex 右对齐；手机端改为单列栅格并去掉负上边距 */
+    display: grid;
+    padding: 0 .25rem;  
+    grid-template-columns: 1fr;
+    gap: .75rem;
+    margin-top: 0;          /* 覆盖桌面端的 -1.5rem */
+    margin-bottom: 1rem;    /* 维持与正文的间距 */
+  }
+
+  [data-resume] .resume-actions .resume-btn {
+    /* 关键：按钮宽度 100%，内容居中 */
+    width: 100%;
+    display: flex;          /* 覆盖可能的 inline-flex/inline-block */
     align-items: center;
     justify-content: center;
-    width: 100%;
     text-align: center;
-    padding-left: 1rem !important;  /* 与右侧对称 */
-    padding-right: 1rem !important;
-    line-height: normal;             /* 避免行高导致的垂直偏移 */
-  }
-
-  /* 若下载图标通过 ::before 注入并且在左侧绝对定位，改为参与文档流 */
-  .resume .btn::before,
-  .resume .button::before {
-    position: static !important;
-    margin-right: .5rem;
-  }
-
-  /* 若使用 <i> 或 <svg> 放图标，同样保证与文字水平居中对齐 */
-  .resume .btn i,
-  .resume .btn svg,
-  .resume .button i,
-  .resume .button svg {
-    margin-right: .5rem;
-  }
-
-  /* 旧样式里常见的“左侧有图标的按钮”——收回不必要的额外左内边距 */
-  .resume .btn.btn-icon-left,
-  .resume .button.btn-icon-left {
-    padding-left: 1rem !important;
-  }
-}
-
-/* === Resume buttons: concise dark-mode fix === */
-html[data-mode="dark"],
-html.dark,
-:root[data-theme="dark"] {
-  /* 通用：简历页按钮在暗色下的默认底色 */
-  [data-resume] .resume-btn {
-    background:#21262d !important;
-    color:#e6edf3 !important;
-    border-color:#30363d !important;
-  }
-
-  /* Ghost 变体（翻译按钮） */
-  [data-resume] .resume-btn--ghost {
-    background:transparent !important;
-    color:#e6edf3 !important;
-    border-color:#3a3f46 !important;
   }
 }
 
@@ -225,12 +191,25 @@ html.dark,
 
 /* 窄屏策略：保留 Prev/Next 与 X/Y，隐藏大部分数字页码，避免拥挤 */
 @media (max-width: 576px) {
-  .showcase-pagination .page-item:not(.nav-prev):not(.nav-next):not(.disabled) {
+  .pagination.showcase-pagination .page-item:not(.nav-prev):not(.nav-next):not(.disabled):not(.page-index) {
     display: none;
   }
-  .showcase-pagination .page-index {
+
+  .pagination.showcase-pagination .page-index {
     display: inline-flex;
+    align-items: center;  /* 垂直居中 */
+    white-space: nowrap;  /* 避免换行 */
     margin: 0 .25rem;
+  }
+
+  /* “当前页” 与 “/ 总页数” 这两段之间拉开一点 */
+  .pagination.showcase-pagination .page-index span + .text-muted {
+    margin-left: .35rem; /* 可调 0.3~0.5rem */
+  }
+
+  /* “/” 与 总页数之间再拉开一点（依赖模板中 “/ ” 后含空格） */
+  .pagination.showcase-pagination .page-index .text-muted {
+    word-spacing: .35rem; /* 可调 0.3~0.5rem */
   }
 }
 

@@ -135,9 +135,6 @@ Developed an **Intelligent Irrigation System** using KNN, including circuit desi
 - **Robotics:** System control, real-time sensor integration  
 - **Deep Learning:** CNN, RNN, self-supervised learning, pruning, and compression
 
-</div>
-
-
 
 <!--lang:cn-->
 
