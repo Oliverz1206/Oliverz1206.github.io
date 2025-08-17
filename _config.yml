@@ -273,9 +273,9 @@ pagination:
 showcase:
   enabled: true
   debug: false
-  collection: posts    # 可写可不写，反正固定为 posts
+  collection: posts 
   pagination:
-    per_page: 12
+    per_page: 8
     sort_reverse: true
 
 # Autopage settings

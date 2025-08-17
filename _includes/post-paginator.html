@@ -1,0 +1,108 @@
+<!-- The paginator for post list -->
+<nav aria-label="Page Navigation">
+  <ul class="pagination showcase-pagination align-items-center mt-4 mb-0">
+
+    {%- comment -%} 左侧 Prev {%- endcomment -%}
+    {% if paginator.previous_page %}
+      {% assign prev_url = paginator.previous_page_path | relative_url %}
+    {% else %}
+      {% assign prev_url = '#' %}
+    {% endif %}
+
+    <li class="page-item nav-prev {% unless paginator.previous_page %}disabled{% endunless %}">
+      {% if paginator.previous_page %}
+        <a class="btn btn-ghost-gray page-nav-btn" href="{{ prev_url }}" aria-label="previous-page">
+          <i class="fas fa-angle-left"></i>
+          <span class="nav-text">Prev</span>
+        </a>
+      {% else %}
+        <span class="btn btn-ghost-gray page-nav-btn disabled" aria-label="previous-page">
+          <i class="fas fa-angle-left"></i>
+          <span class="nav-text">Prev</span>
+        </span>
+      {% endif %}
+    </li>
+
+    {%- comment -%}
+      数字页码（修复：点击 1 返回节目录根，而非当前页）
+    {%- endcomment -%}
+    {% assign left_ellipsis = false %}
+    {% assign right_ellipsis = false %}
+    {% assign paginate_pattern = site.paginate_path | default: '/page:num/' %}
+
+    {%- comment -%}
+      从 page.url 中剥离：
+      1) index.html
+      2) 当前分页段（如 /page2/）
+      得到节目录根，如 /projects/ 或 /
+    {%- endcomment -%}
+    {% assign current_seg = paginate_pattern | replace: ':num', paginator.page %}
+    {% assign section_root = page.url | remove: 'index.html' | remove: current_seg %}
+    {% if section_root == '' %}{% assign section_root = '/' %}{% endif %}
+
+    {% for i in (1..paginator.total_pages) %}
+      {% assign pre = paginator.page | minus: 1 %}
+      {% assign next = paginator.page | plus: 1 %}
+      {% assign pre_less = pre | minus: 1 %}
+      {% assign next_more = next | plus: 1 %}
+      {% assign show = false %}
+
+      {% if paginator.page == 1 %}
+        {% if i <= 3 or i == paginator.total_pages %}{% assign show = true %}{% endif %}
+      {% elsif paginator.page == paginator.total_pages %}
+        {% if i == 1 or i >= pre_less %}{% assign show = true %}{% endif %}
+      {% else %}
+        {% if i == 1 or i == paginator.total_pages or (i >= pre and i <= next) %}{% assign show = true %}{% endif %}
+      {% endif %}
+
+      {% if show %}
+        {% if i == 1 %}
+          {% assign number_url = section_root %}
+        {% else %}
+          {% assign seg = paginate_pattern | replace: ':num', i %}
+          {% assign number_url = section_root | append: seg | replace: '//', '/' %}
+        {% endif %}
+        <li class="page-item {% if i == paginator.page %} active{% endif %}">
+          <a class="page-link" href="{{ number_url | relative_url }}">{{- i -}}</a>
+        </li>
+      {% else %}
+        {% if i < pre and left_ellipsis == false %}
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+          {% assign left_ellipsis = true %}
+        {% elsif i > next and right_ellipsis == false %}
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+          {% assign right_ellipsis = true %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+
+
+    {%- comment -%} 手机端 “当前页/总页数” 索引 {%- endcomment -%}
+    <li class="page-index align-middle">
+      <span>{{ paginator.page }}</span>
+      <span class="text-muted">/ {{ paginator.total_pages }}</span>
+    </li>
+
+    {%- comment -%} 右侧 Next {%- endcomment -%}
+    {% if paginator.next_page_path %}
+      {% assign next_url = paginator.next_page_path | relative_url %}
+    {% else %}
+      {% assign next_url = '#' %}
+    {% endif %}
+
+    <li class="page-item nav-next {% unless paginator.next_page_path %}disabled{% endunless %}">
+      {% if paginator.next_page_path %}
+        <a class="btn btn-ghost-gray page-nav-btn" href="{{ next_url }}" aria-label="next-page">
+          <span class="nav-text">Next</span>
+          <i class="fas fa-angle-right"></i>
+        </a>
+      {% else %}
+        <span class="btn btn-ghost-gray page-nav-btn disabled" aria-label="next-page">
+          <span class="nav-text">Next</span>
+          <i class="fas fa-angle-right"></i>
+        </span>
+      {% endif %}
+    </li>
+  </ul>
+</nav>
+<!-- .pagination -->

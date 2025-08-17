@@ -9,6 +9,9 @@
 ';
 
 /* append your custom style below */
+/* Global */
+@view-transition { navigation: auto; }
+
 /* ============================
           Lists 页面样式
    ============================ */
@@ -90,19 +93,165 @@
 /* 用于默认隐藏元素，替代内联 */
 .is-hidden { display: none !important; }
 
-@media (max-width: 575.98px) {
-  .resume-actions {
+
+@media (max-width: 576px) {
+  /* 让按钮用 Flex 居中排列，取消“为左侧图标让位”的不对称内边距 */
+  .resume .btn,
+  .resume .button {
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;           /* 组件间距 */
-    padding-inline: 12px;   /* 容器左右留白 */
-    box-sizing: border-box; /* 避免内边距影响宽度计算 */
-  }
-  .resume-actions .resume-btn,
-  .resume-actions #download-btn {
-    display: block;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     text-align: center;
-    box-sizing: border-box;
+    padding-left: 1rem !important;  /* 与右侧对称 */
+    padding-right: 1rem !important;
+    line-height: normal;             /* 避免行高导致的垂直偏移 */
   }
+
+  /* 若下载图标通过 ::before 注入并且在左侧绝对定位，改为参与文档流 */
+  .resume .btn::before,
+  .resume .button::before {
+    position: static !important;
+    margin-right: .5rem;
+  }
+
+  /* 若使用 <i> 或 <svg> 放图标，同样保证与文字水平居中对齐 */
+  .resume .btn i,
+  .resume .btn svg,
+  .resume .button i,
+  .resume .button svg {
+    margin-right: .5rem;
+  }
+
+  /* 旧样式里常见的“左侧有图标的按钮”——收回不必要的额外左内边距 */
+  .resume .btn.btn-icon-left,
+  .resume .button.btn-icon-left {
+    padding-left: 1rem !important;
+  }
+}
+
+/* === Resume buttons: concise dark-mode fix === */
+html[data-mode="dark"],
+html.dark,
+:root[data-theme="dark"] {
+  /* 通用：简历页按钮在暗色下的默认底色 */
+  [data-resume] .resume-btn {
+    background:#21262d !important;
+    color:#e6edf3 !important;
+    border-color:#30363d !important;
+  }
+
+  /* Ghost 变体（翻译按钮） */
+  [data-resume] .resume-btn--ghost {
+    background:transparent !important;
+    color:#e6edf3 !important;
+    border-color:#3a3f46 !important;
+  }
+}
+
+
+
+/* ============================
+    Post-paginator 页面样式
+   ============================ */
+.showcase-pagination {
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+/* 数字页码：高度与按钮一致，垂直居中 */
+.showcase-pagination .page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  line-height: 2rem;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* 幽灵按钮：默认透明、无边框；hover 时灰色淡入填充 */
+.page-nav-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  min-height: 2rem;
+  line-height: 2rem;
+  padding: .25rem .75rem;
+  text-decoration: none;
+}
+
+.btn-ghost-gray {
+  color: #6c757d;
+  background: transparent;
+  border: none;            /* 无边框 */
+  box-shadow: none;        /* 无外框阴影 */
+}
+
+.btn-ghost-gray::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: .375rem;  /* 与 .btn 接近 */
+  background-image: linear-gradient(180deg, #e9ecef 0%, #dee2e6 100%);
+  opacity: 0;
+  transition: opacity .2s ease;
+  z-index: 0;
+}
+
+.btn-ghost-gray:hover::before,
+.btn-ghost-gray:focus-visible::before {
+  opacity: 1;             /* 悬停渐入灰色填充 */
+}
+
+/* 让文字与图标在填充层之上 */
+.btn-ghost-gray > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 禁用态 */
+.btn-ghost-gray.disabled,
+.btn-ghost-gray:disabled,
+.page-item.disabled .btn-ghost-gray {
+  color: #adb5bd;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.page-item.disabled .btn-ghost-gray::before {
+  opacity: .4;
+}
+
+/* 窄屏策略：保留 Prev/Next 与 X/Y，隐藏大部分数字页码，避免拥挤 */
+@media (max-width: 576px) {
+  .showcase-pagination .page-item:not(.nav-prev):not(.nav-next):not(.disabled) {
+    display: none;
+  }
+  .showcase-pagination .page-index {
+    display: inline-flex;
+    margin: 0 .25rem;
+  }
+}
+
+
+
+/* ============================
+       Showcase 页面样式
+   ============================ */
+/* Showcase 卡片与分页的“极轻”阴影 —— 无 1px 外描边 */
+#post-list { --card-shadow: 0 2px 6px rgba(0,0,0,.06); }
+html[data-mode="dark"] #post-list { --card-shadow: 0 2px 8px rgba(0,0,0,.20); }
+
+#post-list .post-preview,
+#post-list .card {
+  border: 0 !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+/* 分页按钮保持干净、无边框/阴影线 */
+.showcase-pagination .page-nav-btn,
+.pagination .page-link { 
+  border: 0 !important;
+  box-shadow: none !important;
 }
