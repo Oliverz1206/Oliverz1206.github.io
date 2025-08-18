@@ -12,6 +12,48 @@
 /* Global */
 @view-transition { navigation: auto; }
 
+
+/* ============================
+        Sidebar 页面样式
+   ============================ */
+/* 让整组图标成为“自适应宽度的块”，在侧栏横向居中 */
+#sidebar .sidebar-bottom {
+  align-self: center !important;   /* 覆盖父级 align-items-end，横向居中这个块 */
+  width: auto !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: center;         /* 组内均分间距 */
+  align-items: center;
+  gap: .875rem;
+  padding-left: 16px;                 /* 避免不对称内边距造成视觉偏移 */
+  padding-right: 16px;
+}
+
+/* 扁平化 contact-links，让其中 <a> 与按钮共用同一套 gap 等距 */
+#sidebar .sidebar-bottom .contact-links { display: contents; }
+
+/* 去掉分隔点，避免破坏等距 */
+#sidebar .sidebar-bottom .icon-border { display: none; }
+
+/* 统一命中区，消除不同图标字形宽度带来的错觉 */
+#sidebar .sidebar-bottom #mode-toggle,
+#sidebar .sidebar-bottom .contact-links a {
+  width: 2.0rem;
+  height: 2.0rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  line-height: 1;
+}
+
+/* 兼容不支持 flex-gap 的旧浏览器 */
+@supports not (gap: 1rem) {
+  #sidebar .sidebar-bottom > * { margin: 0 .4375rem; }
+}
+
+
+
 /* ============================
           Lists 页面样式
    ============================ */
