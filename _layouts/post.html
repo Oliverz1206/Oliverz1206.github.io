@@ -3,9 +3,6 @@ layout: default
 refactor: true
 panel_includes:
   - toc
-tail_includes:
-  - related-posts
-  - post-nav
 script_includes:
   - comment
 ---
@@ -209,4 +206,10 @@ script_includes:
     <!-- .post-tail-bottom -->
   </div>
   <!-- div.post-tail-wrapper -->
+  
+  {% if page.tail_includes %}
+    {% for inc in page.tail_includes %}
+      {% include {{ inc }}.html lang=lang %}
+    {% endfor %}
+  {% endif %}
 </article>

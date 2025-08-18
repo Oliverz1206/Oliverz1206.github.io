@@ -1,0 +1,57 @@
+<nav class="post-navigation d-flex justify-content-between" aria-label="Post Navigation">
+  {% assign previous = site.data.locales[include.lang].post.button.previous %}
+  {% assign next = site.data.locales[include.lang].post.button.next %}
+
+  {%- comment -%} 取同类目有序列表（按日期从新到旧） {%- endcomment -%}
+  {% assign top = page.categories | first %}
+  {% if top %}
+    {% assign bucket = site.categories[top] | sort: 'date' | reverse %}
+  {% else %}
+    {% assign bucket = site.posts | sort: 'date' | reverse %}
+  {% endif %}
+
+  {%- comment -%}
+    在从新到旧的 bucket 中，找到当前文章：
+    - newer: 循环中“当前项”的前一个（更“新”的）
+    - older: 循环中“当前项”的后一个（更“旧”的）
+  {%- endcomment -%}
+  {% assign prev_candidate = nil %}
+  {% assign found_current = false %}
+  {% assign newer = nil %}
+  {% assign older = nil %}
+
+  {% for p in bucket %}
+    {% if found_current %}
+      {% assign older = p %}
+      {% break %}
+    {% endif %}
+
+    {% if p.url == page.url %}
+      {% assign found_current = true %}
+      {% assign newer = prev_candidate %}
+    {% endif %}
+
+    {% assign prev_candidate = p %}
+  {% endfor %}
+
+  {%- comment -%} 左：older（previous）；右：newer（next） {%- endcomment -%}
+  {% if older %}
+    <a href="{{ older.url | relative_url }}" class="btn btn-outline-primary" aria-label="{{ previous }}">
+      <p>{{ older.title }}</p>
+    </a>
+  {% else %}
+    <div class="btn btn-outline-primary disabled" aria-label="{{ previous }}">
+      <p>-</p>
+    </div>
+  {% endif %}
+
+  {% if newer %}
+    <a href="{{ newer.url | relative_url }}" class="btn btn-outline-primary" aria-label="{{ next }}">
+      <p>{{ newer.title }}</p>
+    </a>
+  {% else %}
+    <div class="btn btn-outline-primary disabled" aria-label="{{ next }}">
+      <p>-</p>
+    </div>
+  {% endif %}
+</nav>

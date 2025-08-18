@@ -72,7 +72,18 @@
   gap: 6px;
   text-decoration: none;
   line-height: 1;
+  border-bottom: 0;
+  box-shadow: none; 
 }
+
+[data-resume] .resume-actions a.resume-btn,
+[data-resume] .resume-actions a.resume-btn:hover,
+[data-resume] .resume-actions a.resume-btn:focus {
+  text-decoration: none !important;
+  border-bottom: 0 !important;
+  outline: 0;
+}
+[data-resume] .resume-actions a.resume-btn::after { content: none !important; }
 
 /* 颜色用 Bootstrap 变量，方便主题切换 */
 .resume-btn--solid {
@@ -92,6 +103,25 @@
 
 /* 用于默认隐藏元素，替代内联 */
 .is-hidden { display: none !important; }
+
+/* 暗色模式下 Resume 页面按钮样式调整 */
+html[data-mode="dark"],
+html.dark,
+:root[data-theme="dark"] {
+  /* 通用：简历页按钮在暗色下的默认底色 */
+  [data-resume] .resume-btn {
+    background:#0c5a00 !important;
+    color:#e6edf3 !important;
+    border-color:#30363d !important;
+  }
+
+  /* Ghost 变体（翻译按钮） */
+  [data-resume] .resume-btn--ghost {
+    background:transparent !important;
+    color:#e6edf3 !important;
+    border-color:#3a3f46 !important;
+  }
+}
 
 /* 手机端：Resume 页面按钮行改为单列栅格布局 */
 @media (max-width: 576px) {
