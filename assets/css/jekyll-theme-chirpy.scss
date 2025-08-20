@@ -227,10 +227,26 @@ html.dark,
   }
 }
 
+/* ============================
+         Post 页面样式
+   ============================ */
+/* Secondary subtitle split from title after '|' on post pages */
+.post-subtitle {
+  margin-top: 0.25rem;
+  font-size: 1.0rem;
+  font-weight: 300;   /* light */
+  opacity: 0.82;       /* 略浅，适配明暗 */
+  line-height: 1.35;
+  margin-bottom: 0.85rem;
+}
+
+@media (max-width: 576px) {
+  .post-subtitle { font-size: 0.95rem; }
+}
 
 
 /* ============================
-    Post-paginator 页面样式
+     Post-paginator 页面样式
    ============================ */
 .showcase-pagination {
   gap: .5rem;

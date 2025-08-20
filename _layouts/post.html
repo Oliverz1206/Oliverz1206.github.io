@@ -6,14 +6,21 @@ panel_includes:
 script_includes:
   - comment
 ---
-
 {% include lang.html %}
 
 {% include toc-status.html %}
+{%- assign __parts = page.title | split: '|' -%}
+{%- assign __main = __parts[0] | strip -%}
+{%- assign __sub = '' -%}
+{%- if __parts.size > 1 -%}{%- assign __sub = __parts[1] | strip -%}{%- endif -%}
 
 <article class="px-1" data-toc="{{ enable_toc }}">
   <header>
-    <h1 data-toc-skip>{{ page.title }}</h1>
+    <h1 data-toc-skip>{{ __main }}</h1>
+    {% if __sub != '' %}
+      <div class="post-subtitle">{{ __sub }}</div>
+    {% endif %}
+
     {% if page.description %}
       <p class="post-desc fw-light mb-4">{{ page.description }}</p>
     {% endif %}
@@ -97,7 +104,7 @@ script_includes:
 
   {% if enable_toc %}
     <div id="toc-bar" class="d-flex align-items-center justify-content-between invisible">
-      <span class="label text-truncate">{{ page.title }}</span>
+      <span class="label text-truncate">{{ __main }}</span>
       <button type="button" class="toc-trigger btn me-1">
         <i class="fa-solid fa-list-ul fa-fw"></i>
       </button>
@@ -110,7 +117,7 @@ script_includes:
 
     <dialog id="toc-popup" class="p-0">
       <div class="header d-flex flex-row align-items-center justify-content-between">
-        <div class="label text-truncate py-2 ms-4">{{- page.title -}}</div>
+        <div class="label text-truncate py-2 ms-4">{{- __main -}}</div>
         <button id="toc-popup-close" type="button" class="btn mx-1 my-1 opacity-75">
           <i class="fas fa-close"></i>
         </button>
@@ -141,7 +148,10 @@ script_includes:
           {%- assign l1_path = base | append: l1_slug | append: '/' -%}
           {%- assign has_l1 = false -%}
           {%- for p in site.pages -%}
-            {%- if p.url == l1_path -%}{% assign has_l1 = true %}{% break %}{%- endif -%}
+            {%- if p.url == l1_path -%}
+              {% assign has_l1 = true -%}
+              {%- break %}
+            {%- endif -%}
           {%- endfor -%}
           {%- if has_l1 -%}
             , <a href="{{ l1_path | relative_url }}">{{ l1 }}</a>
@@ -156,7 +166,10 @@ script_includes:
           {%- assign l2_path = base | append: l1_slug | append: '/' | append: l2_slug | append: '/' -%}
           {%- assign has_l2 = false -%}
           {%- for p in site.pages -%}
-            {%- if p.url == l2_path -%}{% assign has_l2 = true %}{% break %}{%- endif -%}
+            {%- if p.url == l2_path -%}
+              {% assign has_l2 = true -%}
+              {%- break %}
+            {%- endif -%}
           {%- endfor -%}
           {%- if has_l2 -%}
             , <a href="{{ l2_path | relative_url }}">{{ l2 }}</a>
@@ -166,7 +179,6 @@ script_includes:
         {%- endif -%}
       </span>
     {%- endif -%}
-
 
     <!-- tags -->
     {% if page.tags.size > 0 %}
@@ -206,7 +218,7 @@ script_includes:
     <!-- .post-tail-bottom -->
   </div>
   <!-- div.post-tail-wrapper -->
-  
+
   {% if page.tail_includes %}
     {% for inc in page.tail_includes %}
       {% include {{ inc }}.html lang=lang %}
