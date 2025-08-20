@@ -52,6 +52,46 @@
   #sidebar .sidebar-bottom > * { margin: 0 .4375rem; }
 }
 
+/* Sidebar Background */
+/* ---- Sidebar 背景图（保持 #sidebar 为 fixed） ---- */
+//#sidebar::before {
+//  content: "";
+//  position: absolute;          /* 相对 fixed 的 #sidebar 定位 */
+//  inset: 0;
+//  z-index: 0;                  /* 在内容之下，但在背景色之上 */
+//  pointer-events: none;
+//  background-repeat: no-repeat;
+//  background-position: center top;
+//  background-size: cover;
+//  opacity: 0.22;
+//  /* 如果你的站点是项目页，建议用 relative_url，防 404 */
+//  background-image: url("{{ '/assets/img/background/sidebar-light.png' | relative_url }}");
+//}
+
+/* 确保真实内容在背景图之上 */
+//#sidebar .sidebar-inner,
+//#sidebar .sidebar-bottom,
+//#sidebar .sidebar-top {
+//  position: relative;
+//  z-index: 1;
+//}
+
+/* 暗色模式切换 */
+//html[data-mode="dark"] #sidebar::before,
+//html.dark #sidebar::before,
+//[data-theme="dark"] #sidebar::before {
+//  background-image: url("{{ '/assets/img/background/sidebar-dark.png' | relative_url }}");
+//  opacity: 0.28;
+//}
+
+/* 初次访问按系统暗色兜底 */
+//@media (prefers-color-scheme: dark) {
+//  html:not([data-mode="light"]) #sidebar::before {
+//    background-image: url("{{ '/assets/img/background/sidebar-dark.png' | relative_url }}");
+//    opacity: 0.28;
+//  }
+//}
+
 
 
 /* ============================
@@ -152,7 +192,7 @@ html.dark,
 :root[data-theme="dark"] {
   /* 通用：简历页按钮在暗色下的默认底色 */
   [data-resume] .resume-btn {
-    background:#0c5a00 !important;
+    background:#094000 !important;
     color:#e6edf3 !important;
     border-color:#30363d !important;
   }

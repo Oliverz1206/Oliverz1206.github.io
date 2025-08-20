@@ -21,7 +21,7 @@ timezone: Asia/Shanghai
 
 title: Oliver Z. # the main title
 
-tagline: Personal blog with Resume, Notes and Projects archives. # it will display as the subtitle
+tagline: Yunfan's Personal Space # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   A minimal, responsive and feature-rich Jekyll theme for technical writing.
