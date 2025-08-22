@@ -8,44 +8,51 @@
 {%- endif -%}
 ';
 
-/* append your custom style below */
-/* Global */
+
+/* ============================
+        Global Settings
+   ============================ */
+/* 开启浏览器内置的页面切换动画 让进入/离开页面更顺滑 */
 @view-transition { navigation: auto; }
 
 
-/* ============================
-        Sidebar 页面样式
-   ============================ */
-/* 让整组图标成为“自适应宽度的块”，在侧栏横向居中 */
-#sidebar .sidebar-bottom {
-  align-self: center !important;   /* 覆盖父级 align-items-end，横向居中这个块 */
-  width: auto !important;
-  display: flex !important;
-  flex-wrap: wrap;
-  justify-content: center;         /* 组内均分间距 */
-  align-items: center;
-  gap: .875rem;
-  padding-left: 16px;                 /* 避免不对称内边距造成视觉偏移 */
-  padding-right: 16px;
+/* ===========================================
+ *             Sidebar 页面样式
+ * =========================================== */
+/* 侧边栏底部区 */
+#sidebar .sidebar-bottom { 
+  display: flex;                      /* 布局方式：横向排列子元素 */
+  align-items: center;                /* 垂直方向居中 */
+  justify-content: center;            /* 水平方向居中 */
+  flex-wrap: wrap;                    /* 需要时换行，避免挤在一行 */
+  gap: .875rem;                       /* 子元素之间的间隔 */
+  padding: .75rem 1rem;               /* 内边距（上下 .75rem，左右 1rem） */
 }
 
-/* 扁平化 contact-links，让其中 <a> 与按钮共用同一套 gap 等距 */
+/* 扁平化 contact-links，让其中 <a> 与按钮共用同一套 gap 等距，不同数量的联系方式也能自动整齐对齐。 */
 #sidebar .sidebar-bottom .contact-links { display: contents; }
 
 /* 去掉分隔点，避免破坏等距 */
 #sidebar .sidebar-bottom .icon-border { display: none; }
 
-/* 统一命中区，消除不同图标字形宽度带来的错觉 */
+/* 深浅色切换按钮与其它链接统一外观和交互区域，消除不同图标字形宽度带来的错觉 */
 #sidebar .sidebar-bottom #mode-toggle,
 #sidebar .sidebar-bottom .contact-links a {
-  width: 2.0rem;
-  height: 2.0rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  line-height: 1;
+  width: 2.0rem;                      /* 统一宽度，避免图标被拉伸 */
+  height: 2.0rem;                     /* 统一宽高，避免图标被拉伸 */
+  display: inline-flex;               /* 让图标和文字垂直居中 */
+  align-items: center;                /* 垂直居中 */
+  justify-content: center;            /* 水平居中 */
+  border-radius: 50%;                 /* 圆形按钮 */
+  line-height: 1;                     /* 行高 1，避免图标被拉伸 */
 }
+
+/* 鼠标悬停时稍微降低文字/图标对比度 */
+#sidebar .sidebar-bottom .contact-links a {
+  color: inherit;                     /* 文字颜色跟随父元素 */
+  transition: opacity .2s ease;       /* 过渡动画（属性变化的平滑） */
+}
+#sidebar .sidebar-bottom .contact-links a:hover { opacity: .8; }
 
 /* 兼容不支持 flex-gap 的旧浏览器 */
 @supports not (gap: 1rem) {
@@ -54,54 +61,64 @@
 
 /* Sidebar Background */
 /* ---- Sidebar 背景图（保持 #sidebar 为 fixed） ---- */
-//#sidebar::before {
-//  content: "";
-//  position: absolute;          /* 相对 fixed 的 #sidebar 定位 */
-//  inset: 0;
-//  z-index: 0;                  /* 在内容之下，但在背景色之上 */
-//  pointer-events: none;
-//  background-repeat: no-repeat;
-//  background-position: center top;
-//  background-size: cover;
-//  opacity: 0.22;
-//  /* 如果你的站点是项目页，建议用 relative_url，防 404 */
-//  background-image: url("{{ '/assets/img/background/sidebar-light.png' | relative_url }}");
-//}
+/*
+#sidebar::before {
+  content: "";
+  position: absolute;          /* 相对 fixed 的 #sidebar 定位 
+  inset: 0;
+  z-index: 0;                  /* 在内容之下，但在背景色之上 
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+  opacity: 0.22;
+  /* 如果你的站点是项目页，建议用 relative_url，防 404 
+  background-image: url("{{ '/assets/img/background/sidebar-light.png' | relative_url }}");
+}
+*/
 
 /* 确保真实内容在背景图之上 */
-//#sidebar .sidebar-inner,
-//#sidebar .sidebar-bottom,
-//#sidebar .sidebar-top {
-//  position: relative;
-//  z-index: 1;
-//}
+/*
+#sidebar .sidebar-inner,
+#sidebar .sidebar-bottom,
+#sidebar .sidebar-top {
+  position: relative;
+  z-index: 1;
+}
+*/
 
 /* 暗色模式切换 */
-//html[data-mode="dark"] #sidebar::before,
-//html.dark #sidebar::before,
-//[data-theme="dark"] #sidebar::before {
-//  background-image: url("{{ '/assets/img/background/sidebar-dark.png' | relative_url }}");
-//  opacity: 0.28;
-//}
+/*
+html[data-mode="dark"] #sidebar::before,
+html.dark #sidebar::before,
+[data-theme="dark"] #sidebar::before {
+  background-image: url("{{ '/assets/img/background/sidebar-dark.png' | relative_url }}");
+  opacity: 0.28;
+}
+*/
 
 /* 初次访问按系统暗色兜底 */
-//@media (prefers-color-scheme: dark) {
-//  html:not([data-mode="light"]) #sidebar::before {
-//    background-image: url("{{ '/assets/img/background/sidebar-dark.png' | relative_url }}");
-//    opacity: 0.28;
-//  }
-//}
+/*
+@media (prefers-color-scheme: dark) {
+  html:not([data-mode="light"]) #sidebar::before {
+    background-image: url("{{ '/assets/img/background/sidebar-dark.png' | relative_url }}");
+    opacity: 0.28;
+  }
+}
+*/
 
-
-
-/* ============================
-          Lists 页面样式
-   ============================ */
-/* 箭头旋转动画 & 用触发器上的 .collapsed 驱动方向 */
+/* ===========================================
+                 Lists 页面样式
+   =========================================== */
+/* 一级/二级行的箭头添加旋转过渡，折叠/展开更顺滑 */
 [data-lists] .l1-row .l1-chevron,
 [data-lists] .l2-row .l2-chevron { transition: transform .3s ease; }
-[data-lists] .l1-row:not(.collapsed) .l1-chevron { transform: rotate(90deg); } /* 展开时箭头朝下 */
-[data-lists] .l1-row.collapsed       .l1-chevron { transform: rotate(0deg);  } /* 收起时箭头向右 */
+
+/* 展开时一级箭头朝下；收起时向右。 */
+[data-lists] .l1-row:not(.collapsed) .l1-chevron { transform: rotate(90deg); } 
+[data-lists] .l1-row.collapsed       .l1-chevron { transform: rotate(0deg);  }
+
+/* 展开时二级箭头朝下；收起时向右。 */
 [data-lists] .l2-row:not(.collapsed) .l2-chevron { transform: rotate(90deg); }
 [data-lists] .l2-row.collapsed       .l2-chevron { transform: rotate(0deg);  }
 
@@ -120,64 +137,56 @@
 /* 一级/二级目录：文件夹离右侧文字间距 */
 [data-lists] .l1-folder-icon,
 [data-lists] .l2-folder-icon {
-  margin-right: 0.75rem !important;
-  font-size: 0.85rem;
-  line-height: 1;
-  vertical-align: middle;
+  margin-right: 0.75rem !important;   /* 右侧文字与图标间距 */
+  font-size: 0.85rem;                 /* 图标大小 */
+  line-height: 1;                     /* 行高，避免图标被拉伸 */
+  vertical-align: middle;             /* 垂直对齐 */
 }
 
 /* 二级目录底下的文件缩进距离 */
-[data-lists] ul.list-group.ms-3 { margin-left: 0.25rem !important; }
+[data-lists] ul.list-group.ms-3 { margin-left: 0.0rem !important; }
 
 
-/* ============================
-        Resume 页面样式
-   ============================ */
+/* ===========================================
+               Resume 页面样式
+   =========================================== */
 /* 顶部按钮行：靠右、间距、上下边距 */
 .resume-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: -1.5rem;
-  margin-bottom: 1rem;
+  display: flex;                      /* 布局方式：横向排列子元素 */
+  justify-content: flex-end;          /* 水平方向右对齐 */
+  gap: 0.5rem;                        /* 子元素之间的间隔 */
 }
 
 /* 通用按钮基类：统一宽高、字体、圆角、居中对齐 */
 .resume-btn {
-  width: 160px;
-  height: 36px;
-  font-size: 14px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  text-decoration: none;
-  line-height: 1;
-  border-bottom: 0;
-  box-shadow: none; 
+  width: 160px;                       /* 固定宽度，避免按钮因文字长度不同而错位 */  
+  height: 36px;                       /* 固定高度，避免按钮因文字长度不同而错位 */
+  font-size: 14px;                    /* 统一字体大小 */
+  border-radius: 0.5rem;              /* 圆角 */
+  display: flex;                      /* 让内容垂直水平居中 */
+  align-items: center;                /* 垂直居中 */
+  justify-content: center;            /* 水平居中 */
+  gap: 0.5rem;                        /* 图标与文字间距 */
+  text-decoration: none;              /* 去掉下划线 */
+  line-height: 1;                     /* 行高 1，避免文字被拉伸 */
+  border-bottom: 0;                   /* 去掉默认下划线 */
+  box-shadow: none;                   /* 去掉默认阴影 */
+  cursor: pointer;                    /* 鼠标形状 */
 }
-
-[data-resume] .resume-actions a.resume-btn,
-[data-resume] .resume-actions a.resume-btn:hover,
-[data-resume] .resume-actions a.resume-btn:focus {
-  text-decoration: none !important;
-  border-bottom: 0 !important;
-  outline: 0;
-}
-[data-resume] .resume-actions a.resume-btn::after { content: none !important; }
 
 /* 颜色用 Bootstrap 变量，方便主题切换 */
+/* 实心按钮 */
 .resume-btn--solid {
-  border: 1px solid var(--bs-success);
-  background: var(--bs-success);
-  color: #fff;
+  background: var(--bs-success);      /* 背景 */
+  color: var(--bs-white);             /* 文字颜色 */
+  border: 1px solid var(--bs-success);/* 边框 */
 }
+
+/* 描边按钮 */
 .resume-btn--ghost {
-  border: 1px solid var(--bs-success);
-  background: #fff;
-  color: var(--bs-success);
-  cursor: pointer; 
+  background: transparent;            /* 背景 */
+  color: var(--bs-success);           /* 文字颜色 */
+  border: 1px solid var(--bs-success);/* 边框 */
 }
 
 /* 简单的悬停反馈 */
@@ -190,18 +199,18 @@
 html[data-mode="dark"],
 html.dark,
 :root[data-theme="dark"] {
-  /* 通用：简历页按钮在暗色下的默认底色 */
+  /* 实心按钮 */
   [data-resume] .resume-btn {
-    background:#094000 !important;
-    color:#e6edf3 !important;
-    border-color:#30363d !important;
+    background: color-mix(in srgb, var(--bs-success) 80%, var(--bs-black) 20%) !important;
+    color: var(--bs-white) !important;
+    border-color: var(--bs-gray-800) !important;
   }
 
-  /* Ghost 变体（翻译按钮） */
+  /* 描边按钮 */
   [data-resume] .resume-btn--ghost {
-    background:transparent !important;
-    color:#e6edf3 !important;
-    border-color:#3a3f46 !important;
+    background: transparent !important;
+    color: var(--bs-white) !important;
+    border-color: var(--bs-gray-800) !important;
   }
 }
 
@@ -209,147 +218,150 @@ html.dark,
 @media (max-width: 576px) {
   [data-resume] .resume-actions {
     /* 桌面端是 flex 右对齐；手机端改为单列栅格并去掉负上边距 */
-    display: grid;
-    padding: 0 .25rem;  
-    grid-template-columns: 1fr;
-    gap: .75rem;
-    margin-top: 0;          /* 覆盖桌面端的 -1.5rem */
-    margin-bottom: 1rem;    /* 维持与正文的间距 */
+    display: grid;                    /* 布局方式：单列栅格 */
+    padding: 0 .25rem;                /* 左右内边距 */
+    grid-template-columns: 1fr;       /* 强制单列 */
+    gap: .75rem;                      /* 子元素之间的间隔 */
   }
 
   [data-resume] .resume-actions .resume-btn {
     /* 关键：按钮宽度 100%，内容居中 */
-    width: 100%;
-    display: flex;          /* 覆盖可能的 inline-flex/inline-block */
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+    width: 100%;                      /* 宽度 100% */
+    display: flex;                    /* 覆盖 inline-flex/inline-block */
+    align-items: center;              /* 垂直居中 */
+    justify-content: center;          /* 水平居中 */
+    text-align: center;               /* 文字居中 */
   }
 }
 
-/* ============================
-         Post 页面样式
-   ============================ */
-/* Secondary subtitle split from title after '|' on post pages */
+
+/* ===========================================
+                 Post 页面样式
+   =========================================== */
+/* 博客文章副标题样式 */
 .post-subtitle {
-  margin-top: 0.25rem;
-  font-size: 1.0rem;
-  font-weight: 300;   /* light */
-  opacity: 0.82;       /* 略浅，适配明暗 */
-  line-height: 1.35;
-  margin-bottom: 0.85rem;
-}
-
-@media (max-width: 576px) {
-  .post-subtitle { font-size: 0.95rem; }
+  font-size: 1.0rem;                  /* 字体大小 */
+  font-weight: 300;                   /* 字体变细 */
+  opacity: 0.82;                      /* 略浅，适配明暗 */
+  line-height: 1.35;                  /* 行高 */
+  margin-top: 0.25rem;                /* 顶部间距，避免贴近标题 */
+  margin-bottom: 0.85rem;             /* 底部间距，避免贴近Metadata */
 }
 
 
-/* ============================
-     Post-paginator 页面样式
-   ============================ */
+/* ===========================================
+           Post-paginator 页面样式
+   =========================================== */
+/* Showcase 分页器：按钮与数字页码 */
 .showcase-pagination {
-  gap: .5rem;
-  flex-wrap: wrap;
+  gap: .5rem;                         /* 按钮与数字页码之间的间隔 */
+  flex-wrap: wrap;                    /* 需要时换行，避免挤在一行 */
 }
 
 /* 数字页码：高度与按钮一致，垂直居中 */
 .showcase-pagination .page-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2rem;
-  line-height: 2rem;
-  padding-top: 0;
-  padding-bottom: 0;
+  display: inline-flex;               /* 让内容垂直水平居中 */
+  align-items: center;                /* 垂直居中 */
+  justify-content: center;            /* 水平居中 */
+  min-height: 2rem;                   /* 最小高度 2rem，和按钮一致 */
+  line-height: 2rem;                  /* 行高 2rem，和按钮一致 */
+  padding-top: 0;                     /* 去掉顶部内边距 */
+  padding-bottom: 0;                  /* 去掉底部内边距 */
 }
 
-/* 幽灵按钮：默认透明、无边框；hover 时灰色淡入填充 */
+/* 幽灵按钮：默认透明、无边框 */
 .page-nav-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-  min-height: 2rem;
-  line-height: 2rem;
-  padding: .25rem .75rem;
-  text-decoration: none;
+  position: relative;                 /* 相对定位，便于伪元素定位 */
+  display: inline-flex;               /* 让内容垂直水平居中 */
+  align-items: center;                /* 垂直居中 */
+  gap: .45rem;                        /* 图标与文字间距 */
+  min-height: 2rem;                   /* 最小高度 2rem */
+  line-height: 2rem;                  /* 行高 2rem */
+  padding: .25rem .75rem;             /* 内边距：上下 .25rem，左右 .75rem */
+  text-decoration: none;              /* 去掉下划线 */
 }
 
+/* 幽灵按钮：灰色背景，鼠标悬停时渐入填充 */
 .btn-ghost-gray {
-  color: #6c757d;
-  background: transparent;
-  border: none;            /* 无边框 */
-  box-shadow: none;        /* 无外框阴影 */
+  color: var(--bs-gray-600);          /* 文字颜色 */  
+  background: transparent;            /* 透明背景 */
+  border: none;                       /* 无边框 */
+  box-shadow: none;                   /* 无外框阴影 */
 }
 
+/* 幽灵按钮：鼠标悬停时稍微降低文字/图标对比度 */
 .btn-ghost-gray::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: .375rem;  /* 与 .btn 接近 */
+  content: "";                        /* 伪元素内容为空 */
+  position: absolute;                 /* 绝对定位，覆盖在按钮上 */  
+  inset: 0;                           /* 覆盖整个按钮 */
+  border-radius: .375rem;             /* 与 .btn 接近 */
   background-image: linear-gradient(180deg, #e9ecef 0%, #dee2e6 100%);
-  opacity: 0;
-  transition: opacity .2s ease;
-  z-index: 0;
+  opacity: 0;                         /* 初始透明 */ 
+  transition: opacity .2s ease;       /* 过渡动画（属性变化的平滑） */
+  z-index: 0;                         /* 在文字与图标之下 */ 
 }
 
+/* 幽灵按钮：鼠标悬停时渐入灰色填充 */
 .btn-ghost-gray:hover::before,
 .btn-ghost-gray:focus-visible::before {
-  opacity: 1;             /* 悬停渐入灰色填充 */
+  opacity: 1;                         /* 悬停渐入灰色全填充 */
 }
 
 /* 让文字与图标在填充层之上 */
 .btn-ghost-gray > * {
-  position: relative;
-  z-index: 1;
+  position: relative;                 /* 相对定位，确保在伪元素之上 */
+  z-index: 1;                         /* 在伪元素之上 */  
 }
 
 /* 禁用态 */
 .btn-ghost-gray.disabled,
 .btn-ghost-gray:disabled,
 .page-item.disabled .btn-ghost-gray {
-  color: #adb5bd;
-  cursor: not-allowed;
-  pointer-events: none;
+  color: var(--bs-gray-500);          /* 禁用态文字颜色 */
+  cursor: not-allowed;                /* 鼠标形状 */
+  pointer-events: none;               /* 禁止鼠标事件 */
 }
+
+/* 禁用态按钮：灰色背景，鼠标悬停时不显示填充 */
 .page-item.disabled .btn-ghost-gray::before {
-  opacity: .4;
+  opacity: .4;                      
 }
 
 /* 窄屏策略：保留 Prev/Next 与 X/Y，隐藏大部分数字页码，避免拥挤 */
 @media (max-width: 576px) {
+  /* 按钮与数字页码 */
   .pagination.showcase-pagination .page-item:not(.nav-prev):not(.nav-next):not(.disabled):not(.page-index) {
     display: none;
   }
 
+  /* Prev/Next 按钮 */
   .pagination.showcase-pagination .page-index {
-    display: inline-flex;
-    align-items: center;  /* 垂直居中 */
-    white-space: nowrap;  /* 避免换行 */
-    margin: 0 .25rem;
+    display: inline-flex;             /* 让内容垂直水平居中 */
+    align-items: center;              /* 垂直居中 */
+    white-space: nowrap;              /* 避免换行 */
+    margin: 0 .25rem;                 /* 左右间距 */  
   }
 
-  /* “当前页” 与 “/ 总页数” 这两段之间拉开一点 */
+  /* “当前页” 与 “/” 之间距离 */
   .pagination.showcase-pagination .page-index span + .text-muted {
-    margin-left: .35rem; /* 可调 0.3~0.5rem */
+    margin-left: .35rem;             
   }
 
-  /* “/” 与 总页数之间再拉开一点（依赖模板中 “/ ” 后含空格） */
+  /* “/” 与 ”总页数“ 之间距离 */
   .pagination.showcase-pagination .page-index .text-muted {
-    word-spacing: .35rem; /* 可调 0.3~0.5rem */
+    word-spacing: .35rem;         
   }
 }
 
 
-
-/* ============================
-       Showcase 页面样式
-   ============================ */
-/* Showcase 卡片与分页的“极轻”阴影 —— 无 1px 外描边 */
+/* ===========================================
+              Showcase 页面样式
+   =========================================== */
+/* Showcase 卡片与分页的阴影 */
 #post-list { --card-shadow: 0 2px 6px rgba(0,0,0,.06); }
 html[data-mode="dark"] #post-list { --card-shadow: 0 2px 8px rgba(0,0,0,.20); }
 
+/* 去掉默认边框和阴影 */
 #post-list .post-preview,
 #post-list .card {
   border: 0 !important;
@@ -366,25 +378,26 @@ html[data-mode="dark"] #post-list { --card-shadow: 0 2px 8px rgba(0,0,0,.20); }
 /* 让卡片真“包住”内容并裁剪子元素 */
 .card-wrapper.card {
   border-radius: var(--bs-border-radius-lg);
-  overflow: hidden; /* 关键：子元素（含 <img>）遵循圆角 */
+  overflow: hidden; 
 }
 
 /* 让图片可被裁剪且充满列 */
 .post-preview .col-md-5 img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* 关键：等比例裁剪而非拉伸 */
+  display: block;                     /* 让图片充满列 */
+  width: 100%;                        /* 宽度 100% */
+  height: 100%;                       /* 高度 100% */
+  object-fit: cover;                  /* 保持图片比例，裁剪多余部分 */
 }
 
 /* 如果你曾给图片加过 .rounded-0（或被 Bootstrap 默认类覆盖） */
 .post-preview img.rounded-0 {
-  border-radius: inherit !important; /* 或直接移除 .rounded-0 */
+  border-radius: inherit !important; /* 继承父元素的圆角 */
 }
 
+/* 手机端：让图片圆角与卡片一致 */
 @media (max-width: 576px) {
   .post-preview .col-md-5 img {
-    border-top-left-radius: inherit;
-    border-top-right-radius: inherit;
+    border-top-left-radius: inherit;  /* 继承父元素的圆角 */
+    border-top-right-radius: inherit; /* 继承父元素的圆角 */
   }
 }

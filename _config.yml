@@ -245,8 +245,10 @@ hierarchical_topics:
   - Notes
 
 # slugify modification for link generation
-slug_from_title: true
-slug_rules_debug: false
+slugify:
+  mode: default
+  slug_from_title: true
+  slug_rules_debug: false
 
 # paginate-v2: per-page config lives in the page front matter
 pagination:

@@ -9,7 +9,9 @@ script_includes:
 {% include lang.html %}
 
 {% include toc-status.html %}
-{%- assign __parts = page.title | split: '|' -%}
+
+{% comment %} 支持“主标题 | 副标题”写法：按竖线切分 {% endcomment %}
+{%- assign __parts = page.title | split: ' | ' -%}
 {%- assign __main = __parts[0] | strip -%}
 {%- assign __sub = '' -%}
 {%- if __parts.size > 1 -%}{%- assign __sub = __parts[1] | strip -%}{%- endif -%}
@@ -103,6 +105,7 @@ script_includes:
   </header>
 
   {% if enable_toc %}
+    {% comment %} 顶部迷你目录条：显示当前文章标题与触发按钮 {% endcomment %}
     <div id="toc-bar" class="d-flex align-items-center justify-content-between invisible">
       <span class="label text-truncate">{{ __main }}</span>
       <button type="button" class="toc-trigger btn me-1">
@@ -115,9 +118,10 @@ script_includes:
       <i class="fa-solid fa-angle-right fa-fw"></i>
     </button>
 
+    {% comment %} 目录弹窗：顶部展示标题，主体插入目录列表 {% endcomment %}
     <dialog id="toc-popup" class="p-0">
       <div class="header d-flex flex-row align-items-center justify-content-between">
-        <div class="label text-truncate py-2 ms-4">{{- __main -}}</div>
+        <div class="label text-truncate py-2 ms-4">{{ __main }}</div>
         <button id="toc-popup-close" type="button" class="btn mx-1 my-1 opacity-75">
           <i class="fas fa-close"></i>
         </button>
@@ -217,8 +221,13 @@ script_includes:
     </div>
     <!-- .post-tail-bottom -->
   </div>
-  <!-- div.post-tail-wrapper -->
 
+  <!-- div.post-tail-wrapper -->
+  {% comment %}
+    文末模块按配置加载：
+    - page.tail_includes 通常由插件或 Front Matter 提供，例如：['related-posts', 'post-nav']
+    - 这里逐个 include，便于按分类或页面类型灵活控制“相关文章/前后文导航”等模块
+  {% endcomment %}
   {% if page.tail_includes %}
     {% for inc in page.tail_includes %}
       {% include {{ inc }}.html lang=lang %}
