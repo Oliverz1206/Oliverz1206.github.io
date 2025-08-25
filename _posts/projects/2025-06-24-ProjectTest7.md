@@ -1,7 +1,7 @@
 ---
 title: Project 7
 date: 2025-06-24 14:00:00 +0800
-categories: [Projects]
+categories: [Projects, Circuit Design]
 tags: [test]
 description: Discription
 image:
